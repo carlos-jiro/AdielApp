@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer, type View } from 'react-big-calendar';
-// ... (resto de imports de date-fns) ...
 import { format } from 'date-fns/format';
 import { parse } from 'date-fns/parse';
 import { startOfWeek } from 'date-fns/startOfWeek';
@@ -11,10 +10,9 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { supabase } from '../../lib/supabaseClient';
 import { Plus } from 'lucide-react';
 import AddEventModal from '../../components/AddEventModal';
-// 1. IMPORTAR EL NUEVO MODAL
-import EventDetailsModal from '../../components/EventDetailsModal'; 
+import EventDetailsModal from '../../components/EventDetailsModal';
 
-// ... (configuración de localizer e interfaces igual que antes) ...
+// --- CONFIGURACIÓN DEL CALENDARIO ---
 const locales = { 'es': es };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
 
@@ -27,17 +25,15 @@ interface ActivityEvent {
 }
 
 const CalendarPage = () => {
+  // --- ESTADOS ---
   const [events, setEvents] = useState<ActivityEvent[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // 2. NUEVO ESTADO PARA EL EVENTO SELECCIONADO
   const [selectedEvent, setSelectedEvent] = useState<ActivityEvent | null>(null);
-
   const [view, setView] = useState<View>('month');
   const [date, setDate] = useState(new Date());
 
+  // --- LOGICA DE DATOS ---
   const fetchActivities = async () => {
-    // ... (Tu código de fetch existente, sin cambios) ...
     const { data, error } = await supabase.from('activities').select('*');
     if (error) { console.error('Error fetching activities:', error); return; }
     
@@ -52,67 +48,86 @@ const CalendarPage = () => {
   };
 
   useEffect(() => {
-    (async () => {
+    const loadActivities = async () => {
       await fetchActivities();
-    })();
+    };
+    loadActivities();
   }, []);
 
   const eventStyleGetter = (_event: ActivityEvent) => {
-    // ... (Tu estilo existente) ...
     return { 
-      style: { backgroundColor: '#2dd4bf', borderRadius: '4px', opacity: 0.9, color: 'white', border: '0px', display: 'block', fontSize: '0.85em' } 
+      style: { backgroundColor: '#2dd4bf', borderRadius: '6px', opacity: 0.9, color: 'white', border: '0px', display: 'block', fontSize: '0.85em', fontWeight: '600' } 
     };
   };
 
-  // 3. HANDLER PARA SELECCIONAR
   const handleSelectEvent = (event: ActivityEvent) => {
     setSelectedEvent(event);
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-140px)] flex flex-col overflow-hidden animate-in fade-in duration-500">
+    // CONTENEDOR PRINCIPAL (Cálculo de altura exacto del layout)
+    <div className="w-full pl-4 pr-8 pb-4 h-[calc(100vh-12rem)] md:h-[calc(100vh-7rem)] animate-in fade-in duration-500">
       
-      <div className="glass p-4 rounded-xl shadow-sm border border-white/50 text-slate-700 flex-1 min-h-0 w-full">
-        <BigCalendar
-          localizer={localizer}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: '100%' }}
-          
-          view={view}
-          onView={setView}
-          date={date}
-          onNavigate={setDate}
+      {/* CONTENEDOR ÚNICO (UNIFICADO)
+          - Eliminado el Grid.
+          - Ocupa w-full h-full.
+          - Mantiene el estilo "glass" y los bordes redondeados.
+          - 'relative' necesario para posicionar el botón flotante dentro.
+      */}
+      <div className="relative w-full h-full rounded-3xl glass p-6 overflow-hidden flex flex-col">
+        
+        {/* TITULO (Opcional, para mantener consistencia visual) */}
+        <div className="mb-4 flex justify-between items-center shrink-0">
+           <h2 className="text-xl font-bold text-slate-800">Calendario de Actividades</h2>
+           {/* Puedes poner filtros o controles de vista aquí si quisieras en el futuro */}
+        </div>
 
-          culture='es'
-          eventPropGetter={eventStyleGetter}
-          messages={{ next: "Sig >", previous: "< Ant", today: "Hoy", month: "Mes", week: "Semana", day: "Día", agenda: "Agenda", noEventsInRange: "No hay eventos" }}
-          
-          // 4. USAR EL NUEVO HANDLER
-          onSelectEvent={handleSelectEvent}
-        />
+        {/* CALENDARIO (Ocupa el espacio restante con flex-1) */}
+        <div className="flex-1 min-h-0 text-slate-700"> 
+          {/* min-h-0 es truco flexbox para que el scroll interno funcione bien */}
+          <BigCalendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: '100%' }}
+            
+            view={view}
+            onView={setView}
+            date={date}
+            onNavigate={setDate}
+
+            culture='es'
+            eventPropGetter={eventStyleGetter}
+            messages={{ next: "Sig >", previous: "< Ant", today: "Hoy", month: "Mes", week: "Semana", day: "Día", agenda: "Agenda", noEventsInRange: "No hay eventos" }}
+            
+            onSelectEvent={handleSelectEvent}
+          />
+        </div>
+
+        {/* BOTÓN FLOTANTE (Posicionado dentro del contenedor glass) */}
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="absolute bottom-8 right-12 z-50 bg-[#2dd4bf] hover:bg-[#25b09f] text-white p-4 rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 border-4 border-white/20"
+        >
+          <Plus size={24} />
+        </button>
+
       </div>
 
-      <button 
-        onClick={() => setIsModalOpen(true)}
-        className="absolute bottom-4 right-4 z-50 bg-slate-800 text-white p-4 rounded-full shadow-2xl hover:bg-slate-700 transition-all hover:scale-105 active:scale-95"
-      >
-        <Plus size={24} />
-      </button>
-
+      {/* MODALES */}
       <AddEventModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onRefresh={fetchActivities} 
       />
 
-      {/* 5. RENDERIZAR EL MODAL DE DETALLES */}
       <EventDetailsModal 
         isOpen={!!selectedEvent} 
         onClose={() => setSelectedEvent(null)} 
         event={selectedEvent} 
       />
+      
     </div>
   );
 };
