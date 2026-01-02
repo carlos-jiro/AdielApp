@@ -8,7 +8,6 @@ interface InviteMemberModalProps {
   onInviteSuccess?: () => void; 
 }
 
-// Mantenemos la misma lista que en Settings para consistencia
 const GROUP_ROLES = [
   "Director",
   "Secretario",
@@ -20,12 +19,11 @@ const GROUP_ROLES = [
 const InviteMemberModal = ({ isOpen, onClose, onInviteSuccess }: InviteMemberModalProps) => {
   const [loading, setLoading] = useState(false);
   
-  // Ahora incluimos groupRole en el estado inicial
   const [formData, setFormData] = useState({
     email: '',
     fullName: '',
     voicePart: 'Soprano',
-    groupRole: 'Miembro' // Valor por defecto seguro
+    groupRole: 'Miembro'
   });
 
   if (!isOpen) return null;
@@ -35,15 +33,23 @@ const InviteMemberModal = ({ isOpen, onClose, onInviteSuccess }: InviteMemberMod
     setLoading(true);
 
     try {
-      // Enviamos también el 'groupRole' a la Edge Function
+      // 1. Calculamos el rol de sistema basado en el cargo
+      // Por ejemplo: Director y Secretario son 'admin', el resto 'member'
+      const systemRole = (formData.groupRole === 'Director' || formData.groupRole === 'Secretario') 
+        ? 'admin' 
+        : 'member';
+
+      // 2. Enviamos los datos formateados a snake_case para la DB
       const { error } = await supabase.functions.invoke('invite-user', {
         body: {
           email: formData.email,
-          fullName: formData.fullName,
-          voicePart: formData.voicePart,
-          groupRole: formData.groupRole, 
-          // NOTA: Tu Edge Function deberá leer 'groupRole' y decidir 
-          // si asignar role='admin' (si es Director/Secretario) o 'viewer'
+          // Empaquetamos los datos extra para que la Edge Function los use facilmente
+          metadata: {
+            full_name: formData.fullName,    // Se convierte a snake_case
+            voice_part: formData.voicePart,  // Se convierte a snake_case
+            group_role: formData.groupRole,  // Se convierte a snake_case
+            role: systemRole                 // Rol de permisos (admin/member)
+          }
         }
       });
 
@@ -53,9 +59,9 @@ const InviteMemberModal = ({ isOpen, onClose, onInviteSuccess }: InviteMemberMod
       
       if (onInviteSuccess) onInviteSuccess();
       
-      onClose();
-      // Limpiar formulario al cerrar
+      // Reset y cerrar
       setFormData({ email: '', fullName: '', voicePart: 'Soprano', groupRole: 'Miembro' });
+      onClose();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -112,7 +118,7 @@ const InviteMemberModal = ({ isOpen, onClose, onInviteSuccess }: InviteMemberMod
             </div>
           </div>
 
-          {/* Selector de Cargo (Nuevo) */}
+          {/* Selector de Cargo */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-500 uppercase ml-1">Cargo Oficial</label>
             <div className="relative">
