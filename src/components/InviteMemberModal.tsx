@@ -33,39 +33,45 @@ const InviteMemberModal = ({ isOpen, onClose, onInviteSuccess }: InviteMemberMod
     setLoading(true);
 
     try {
-      // 1. Calculamos el rol de sistema basado en el cargo
-      // Por ejemplo: Director y Secretario son 'admin', el resto 'member'
+      // 1. Definir rol de sistema
       const systemRole = (formData.groupRole === 'Director' || formData.groupRole === 'Secretario') 
         ? 'admin' 
         : 'member';
 
-      // 2. Enviamos los datos formateados a snake_case para la DB
-      const { error } = await supabase.functions.invoke('invite-user', {
+      // 2. Invocar función
+      const { data, error } = await supabase.functions.invoke('invite-user', {
         body: {
           email: formData.email,
-          // Empaquetamos los datos extra para que la Edge Function los use facilmente
           metadata: {
-            full_name: formData.fullName,    // Se convierte a snake_case
-            voice_part: formData.voicePart,  // Se convierte a snake_case
-            group_role: formData.groupRole,  // Se convierte a snake_case
-            role: systemRole                 // Rol de permisos (admin/member)
+            full_name: formData.fullName,
+            voice_part: formData.voicePart,
+            group_role: formData.groupRole,
+            role: systemRole
           }
         }
       });
 
-      if (error) throw error;
+      // 3. Chequeos de error
+      if (error) throw error; // Error de red o supabase client
 
+      // AQUI CAPTURAMOS EL ERROR QUE VIENE DENTRO DEL JSON (EL TRUCO)
+      if (data && data.error) {
+        throw new Error(data.error); 
+      }
+
+      // Éxito
       alert(`Invitación enviada a ${formData.email} como ${formData.groupRole}`);
       
       if (onInviteSuccess) onInviteSuccess();
       
-      // Reset y cerrar
+      // Limpiar y cerrar
       setFormData({ email: '', fullName: '', voicePart: 'Soprano', groupRole: 'Miembro' });
       onClose();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error('Error:', error);
+      console.error('Error detallado:', error);
+      // Ahora este alert SÍ te dirá la verdad (ej: "User already registered")
       alert(error.message || 'Error al enviar invitación');
     } finally {
       setLoading(false);
