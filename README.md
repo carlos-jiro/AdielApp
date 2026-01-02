@@ -1,73 +1,62 @@
-# React + TypeScript + Vite
+# 🎵 Music Group Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Organiza tu coro o banda como un profesional.** > Gestiona miembros, repertorios, partituras y audios de ensayo en un solo lugar.
 
-Currently, two official plugins are available:
+![Project Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-1.0.0-purple?style=for-the-badge)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 ¿De qué trata?
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Esta aplicación es una **plataforma integral de gestión musical** diseñada para directores de coros, líderes de alabanza y bandas.
 
-## Expanding the ESLint configuration
+Olvídate de enviar audios por WhatsApp o perder partituras en correos antiguos. Aquí centralizas todo:
+* **Repertorio Maestro:** Una biblioteca única con todos tus cantos.
+* **Proyectos/Eventos:** Crea listas (setlists) para eventos específicos (ej. "Concierto Navidad") sin duplicar archivos.
+* **Material de Ensayo:** Sube pistas de audio separadas por voz (Soprano, Contralto, Tenor, Bajo) para que tus miembros estudien por su cuenta.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ✨ Características Principales
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+* **👥 Gestión de Miembros:** Roles (Admin, Editor, Miembro), perfiles con foto y registro de voz/cuerda.
+* **🎼 Biblioteca Musical Avanzada:**
+    * Soporte para **PDFs** (Partituras/Letras).
+    * Soporte para **MP3s independientes** por voz.
+* **🗂️ Sistema de Proyectos:** Arquitectura "Muchos a Muchos". Un canto puede estar en varios proyectos simultáneamente.
+* **🎹 Interfaz Moderna:** Diseño limpio con *Glassmorphism*, totalmente responsivo (Móvil/Desktop).
+* **🔒 Seguridad:** Autenticación robusta y políticas de acceso (RLS) mediante Supabase.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🛠️ Tech Stack
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Este proyecto está construido con las tecnologías más modernas y eficientes del ecosistema React.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Tecnología | Uso |
+| :--- | :--- |
+| ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB) | Librería de UI |
+| ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white) | Build Tool (Rapidísimo) |
+| ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white) | Tipado estático y seguridad |
+| ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white) | Estilizado moderno |
+| ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white) | Backend, Auth, DB & Storage |
+| ![Zustand](https://img.shields.io/badge/Zustand-🐻-orange?style=flat) | Gestión de Estado Global |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## 📸 Vistazos (Screenshots)
+
+| Dashboard de Proyectos | Detalle de Canto |
+|:---:|:---:|
+| *Vista Split: Lista de proyectos a la izquierda, repertorio a la derecha.* | *Modal de carga con soporte para múltiples audios.* |
+
+---
+
+## ⚡ Instalación y Setup
+
+Sigue estos pasos para correr el proyecto localmente:
+
+### 1. Clonar el repositorio
+```bash
+git clone [https://github.com/tu-usuario/music-manager.git](https://github.com/tu-usuario/music-manager.git)
+cd music-manager

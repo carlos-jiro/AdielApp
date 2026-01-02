@@ -1,0 +1,68 @@
+import { Link, useLocation } from 'react-router-dom';
+import { LayoutDashboard, Music, Calendar, Youtube, Settings, Building2 } from 'lucide-react';
+import type { ComponentType } from 'react';
+import { useAppStore } from '../lib/store'; // 👈 Importamos el store
+
+// Componente NavItem (Igual que el tuyo, no cambiamos nada aquí)
+const NavItem = ({ to, icon: Icon, label }: { to: string, icon: ComponentType<{ size: number }>, label: string }) => {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+  return (
+    <Link 
+      to={to} 
+      className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
+        isActive 
+        ? 'bg-[#2dd4bf] text-white shadow-lg scale-105' 
+        : 'text-slate-600 hover:bg-white/50'
+      }`}
+    >
+      <Icon size={22} />
+      <span className="font-medium">{label}</span>
+    </Link>
+  );
+};
+
+const Navbar = () => {
+  // 👇 Obtenemos los datos globales del grupo
+  const { groupInfo, loading } = useAppStore();
+
+  return (
+    <nav className="fixed top-0 left-0 h-[calc(100vh-2rem)] w-72 m-4 rounded-3xl glass flex flex-col p-6 gap-2 z-50 overflow-y-auto">
+      
+      {/* --- HEADER CON DATOS DINÁMICOS --- */}
+      <div className="flex items-center gap-3 mb-10 px-2">
+        {/* Contenedor del Logo */}
+        <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-[#2dd4bf] to-teal-600 flex items-center justify-center text-white shadow-lg shrink-0 overflow-hidden">
+          {loading ? (
+            <div className="animate-pulse w-full h-full bg-white/30" />
+          ) : groupInfo?.logo_url ? (
+            <img src={groupInfo.logo_url} alt="Logo" className="w-full h-full object-cover" />
+          ) : (
+            <Building2 size={20} />
+          )}
+        </div>
+        
+        {/* Nombre del Grupo */}
+        <h1 className="text-xl font-bold tracking-tight text-slate-800 truncate">
+          {loading ? 'Cargando...' : (groupInfo?.name || 'CoroPro')}
+        </h1>
+      </div>
+      
+      {/* --- LINKS DE NAVEGACIÓN --- */}
+      <div className="flex flex-col gap-2 flex-1">
+        <NavItem to="/" icon={LayoutDashboard} label="Dashboard" />
+        <NavItem to="/projects" icon={Music} label="Cantos" />
+        <NavItem to="/members" icon={LayoutDashboard} label="Miembros" /> {/* Agregué este que faltaba en tu lista */}
+        <NavItem to="/calendar" icon={Calendar} label="Calendario" />
+        <NavItem to="/tutorials" icon={Youtube} label="Tutoriales" />
+      </div>
+
+      {/* --- FOOTER (SETTINGS) --- */}
+      <div className="mt-auto border-t border-slate-200/50 pt-4">
+        <NavItem to="/settings" icon={Settings} label="Ajustes" />
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
