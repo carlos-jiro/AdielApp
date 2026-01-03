@@ -18,8 +18,9 @@ import Members from './pages/memebers/Members';
 function App() {
   const fetchGroupInfo = useAppStore((state) => state.fetchGroupInfo);
   const fetchUserInfo = useAppStore((state) => state.fetchUserInfo);
-  const fetchSongs = useAppStore((state) => state.fetchSongs); // <--- IMPORTAR AQUÍ
-  
+  const fetchMembers = useAppStore((state) => state.fetchMembers);
+  const fetchSongs = useAppStore((state) => state.fetchSongs); 
+
   const [session, setSession] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +29,8 @@ function App() {
     // corren en paralelo en "segundo plano" mientras la UI sigue su curso.
     fetchGroupInfo();
     fetchUserInfo();
-    fetchSongs(); // <--- LLAMADA AQUÍ
+    fetchMembers();
+    fetchSongs(); 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

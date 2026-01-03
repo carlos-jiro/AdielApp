@@ -4,7 +4,7 @@
   body {
     @apply min-h-screen bg-fixed;
     /* Gradiente suave estilo Glassmorphism */
-    background: linear-gradient(135deg, #e0f2f1 0%, #e1bee7 50%, #b2ebf2 100%);
+    background: linear-gradient(135deg, #e0f2f1 0%, #e6a4f1 50%, #9cecf7 100%);
   }
 }
 
