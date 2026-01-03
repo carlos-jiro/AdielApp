@@ -144,7 +144,7 @@ const AddEventModal = ({ isOpen, onClose, onRefresh, eventToEdit }: Props) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-70 p-4 animate-in fade-in duration-200">
       
       <div className="w-full max-w-lg rounded-3xl p-8 bg-white/70 relative shadow-2xl animate-in zoom-in-95 duration-200 border border-white/20 max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
         

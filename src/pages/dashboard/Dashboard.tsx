@@ -84,7 +84,7 @@ const Dashboard = () => {
            
            <div className="flex-1 flex flex-col justify-center gap-4">
              {/* Tarjeta de Nivel */}
-             <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
+             <div className="bg-linear-to-r from-indigo-500 to-purple-600 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
                  {/* Efecto decorativo de fondo */}
                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-2xl"></div>
                  
