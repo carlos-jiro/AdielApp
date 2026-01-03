@@ -71,12 +71,12 @@ const EventDetailsModal = ({ isOpen, onClose, event, onEdit, onRefresh }: EventD
     <div className="fixed inset-0 z-60 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" 
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" 
         onClick={onClose}
       />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-md rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200 border border-white/50 bg-white/70">
+      <div className="relative w-full glass max-w-md rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200 border border-white/50 bg-white/80">
         
         {/* --- CABECERA --- */}
         <div className="flex justify-between items-start mb-6 gap-4">

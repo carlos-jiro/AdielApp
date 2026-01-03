@@ -144,16 +144,16 @@ const AddEventModal = ({ isOpen, onClose, onRefresh, eventToEdit }: Props) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-70 p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-70 p-4 animate-in fade-in duration-200">
       
-      <div className="w-full max-w-lg rounded-3xl p-8 bg-white/70 relative shadow-2xl animate-in zoom-in-95 duration-200 border border-white/20 max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+      <div className="w-full max-w-lg glass rounded-3xl p-8 bg-white/80 relative shadow-2xl animate-in zoom-in-95 duration-200 border border-white/20 max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
         
-        <button onClick={onClose} className="absolute top-6 right-6 text-slate-500 hover:text-slate-800 transition-colors">
+        <button onClick={onClose} className="absolute top-6 right-6 text-slate-900/40 hover:text-slate-800 transition-colors">
           <X size={24} />
         </button>
 
         <h2 className="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-2">
-          <div className="p-2 bg-white/50 rounded-xl transition-colors duration-300" style={{ color: formData.color }}>
+          <div className="p-2 bg-white/70 rounded-xl transition-colors duration-300" style={{ color: formData.color }}>
              {/* Cambiamos el icono según el modo */}
              {eventToEdit ? <Edit3 size={24} /> : <CalIcon size={24} />}
           </div>
@@ -169,7 +169,7 @@ const AddEventModal = ({ isOpen, onClose, onRefresh, eventToEdit }: Props) => {
             
             <div className="space-y-3">
             <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Título del Evento</label>
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Título del Evento</label>
                 <input required name="title" value={formData.title} onChange={handleChange}
                 style={{ '--tw-ring-color': formData.color } as React.CSSProperties}
                 className="w-full mt-1 bg-white/40 border border-white/50 text-slate-800 placeholder:text-slate-400 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:bg-white/60 transition-all backdrop-blur-sm"
@@ -177,7 +177,7 @@ const AddEventModal = ({ isOpen, onClose, onRefresh, eventToEdit }: Props) => {
             </div>
 
             <div className="flex items-center gap-3 pl-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1"><Palette size={10} /> Color:</span>
+                <span className="text-[10px] font-bold text-slate-700 uppercase flex items-center gap-1"><Palette size={10} /> Color:</span>
                 <div className="flex gap-2">
                     {PRESET_COLORS.map((preset) => (
                         <button key={preset.hex} type="button" onClick={() => handleColorSelect(preset.hex)}
@@ -194,24 +194,24 @@ const AddEventModal = ({ isOpen, onClose, onRefresh, eventToEdit }: Props) => {
             <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider ml-1 flex gap-1 items-center" style={{ color: formData.color }}><Clock size={14}/> Inicia</label>
-                <input required type="date" name="startDate" value={formData.startDate} onChange={handleChange} style={{ '--tw-ring-color': formData.color } as React.CSSProperties} className="w-full bg-white/40 border border-white/50 text-slate-700 rounded-xl px-3 py-2 outline-none focus:ring-2 text-sm" />
-                <input required type="time" name="startTime" value={formData.startTime} onChange={handleChange} style={{ '--tw-ring-color': formData.color } as React.CSSProperties} className="w-full bg-white/40 border border-white/50 text-slate-700 rounded-xl px-3 py-2 outline-none focus:ring-2 text-sm" />
+                <input required type="date" name="startDate" value={formData.startDate} onChange={handleChange} style={{ '--tw-ring-color': formData.color } as React.CSSProperties} className="w-full bg-white/70 border border-white/50 text-slate-700 rounded-xl px-3 py-2 outline-none focus:ring-2 text-sm" />
+                <input required type="time" name="startTime" value={formData.startTime} onChange={handleChange} style={{ '--tw-ring-color': formData.color } as React.CSSProperties} className="w-full bg-white/70 border border-white/50 text-slate-700 rounded-xl px-3 py-2 outline-none focus:ring-2 text-sm" />
             </div>
             <div className="space-y-2 relative">
                 <label className="text-xs font-bold text-slate-400 uppercase flex gap-1 items-center ml-1"><ArrowRight size={14}/> Termina (Opcional)</label>
-                <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} min={formData.startDate} className="w-full bg-white/30 border border-white/30 text-slate-600 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-slate-400 text-sm" />
-                <input type="time" name="endTime" value={formData.endTime} onChange={handleChange} className="w-full bg-white/30 border border-white/30 text-slate-600 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-slate-400 text-sm" />
+                <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} min={formData.startDate} className="w-full bg-white/70 border border-white/30 text-slate-700 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-slate-400 text-sm" />
+                <input type="time" name="endTime" value={formData.endTime} onChange={handleChange} className="w-full bg-white/70 border border-white/30 text-slate-700 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-slate-400 text-sm" />
             </div>
             </div>
 
             <div>
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 flex gap-1 items-center"><MapPin size={12}/> Ubicación</label>
-            <input name="location" value={formData.location} onChange={handleChange} style={{ '--tw-ring-color': formData.color } as React.CSSProperties} className="w-full mt-1 bg-white/40 border border-white/50 text-slate-800 rounded-xl px-4 py-2 outline-none focus:ring-2 transition-all" placeholder="Ej. Auditorio Principal" />
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1 flex gap-1 items-center"><MapPin size={12}/> Ubicación</label>
+            <input name="location" value={formData.location} onChange={handleChange} style={{ '--tw-ring-color': formData.color } as React.CSSProperties} className="w-full mt-1 bg-white/70 border border-white/50 text-slate-800 rounded-xl px-4 py-2 outline-none focus:ring-2 transition-all" placeholder="Ej. Auditorio Principal" />
             </div>
 
             <div>
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 flex gap-1 items-center"><AlignLeft size={12}/> Detalles</label>
-            <textarea name="description" value={formData.description} onChange={handleChange} rows={3} style={{ '--tw-ring-color': formData.color } as React.CSSProperties} className="w-full mt-1 bg-white/40 border border-white/50 text-slate-800 rounded-xl px-4 py-2 outline-none focus:ring-2 transition-all resize-none" placeholder="Notas adicionales..." />
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1 flex gap-1 items-center"><AlignLeft size={12}/> Detalles</label>
+            <textarea name="description" value={formData.description} onChange={handleChange} rows={3} style={{ '--tw-ring-color': formData.color } as React.CSSProperties} className="w-full mt-1 bg-white/70 border border-white/50 text-slate-800 rounded-xl px-4 py-2 outline-none focus:ring-2 transition-all resize-none" placeholder="Notas adicionales..." />
             </div>
 
             <button disabled={loading} type="submit" style={{ backgroundColor: formData.color }} className="w-full text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:brightness-110 active:scale-[0.98] flex justify-center items-center gap-2 mt-2">

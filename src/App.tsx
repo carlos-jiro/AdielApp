@@ -20,6 +20,8 @@ function App() {
   const fetchUserInfo = useAppStore((state) => state.fetchUserInfo);
   const fetchMembers = useAppStore((state) => state.fetchMembers);
   const fetchSongs = useAppStore((state) => state.fetchSongs); 
+  // 1. Agregamos el selector para las estadísticas
+  const fetchAttendanceStats = useAppStore((state) => state.fetchAttendanceStats);
 
   const [session, setSession] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
@@ -31,11 +33,13 @@ function App() {
     fetchUserInfo();
     fetchMembers();
     fetchSongs(); 
+    // 2. Intentamos cargar estadísticas al inicio (si ya hay sesión persistida)
+    fetchAttendanceStats(); 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    // ... tu lógica de autenticación (sin cambios) ...
+    // ... tu lógica de autenticación ...
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false); 
@@ -48,6 +52,8 @@ function App() {
          fetchGroupInfo();
          fetchUserInfo();
          fetchSongs();
+         // 3. Recargamos estadísticas al detectar cambio de sesión (Login exitoso)
+         fetchAttendanceStats();
       }
     });
 

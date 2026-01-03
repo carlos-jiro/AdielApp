@@ -133,8 +133,8 @@ const UploadSongModal = ({ isOpen, onClose, projectId, onRefresh, existingSong }
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">{label}</label>
-        <div className="flex items-center gap-2 bg-white/20 p-2 rounded-xl border border-white/10 shadow-inner">
-          <label className="bg-[#2dd4bf] text-white text-[10px] font-black py-2 px-3 rounded-lg cursor-pointer hover:bg-[#26bba8] transition-all uppercase shrink-0">
+        <div className="flex items-center gap-2 bg-white/70 p-2 rounded-xl border border-white/10 shadow-inner">
+          <label className="bg-[#2dd4bf] text-white/85 text-[12px] font-black py-2 px-3 rounded-lg cursor-pointer hover:bg-[#26bba8] transition-all uppercase shrink-0 tracking-wider">
             {file ? 'Cambiar' : 'Elegir'}
             <input type="file" accept={accept} className="hidden" onChange={(e) => handleFileChange(type, e.target.files?.[0] || null)} />
           </label>
@@ -152,40 +152,44 @@ const UploadSongModal = ({ isOpen, onClose, projectId, onRefresh, existingSong }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="glass w-full max-w-2xl rounded-3xl p-8 my-auto relative shadow-2xl animate-in zoom-in-95 duration-200">
-        <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"><X size={24} /></button>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="glass border-white/50 w-full max-w-2xl rounded-3xl p-8 my-auto relative shadow-2xl animate-in zoom-in-95 duration-200">
+        <button onClick={onClose} className="absolute top-6 right-6 text-slate-500 hover:text-slate-600"><X size={24} /></button>
 
         <h2 className="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-2">
-          {existingSong ? <Save className="text-[#2dd4bf]" /> : <Upload className="text-[#2dd4bf]" />}
-          {existingSong ? 'Editar Materiales' : 'Cargar Nuevo Canto'}
+          <div className="p-2 bg-white/70 rounded-xl transition-colors duration-300">
+            {existingSong ? <Save className="text-[#2dd4bf]" /> : <Upload className="text-[#2dd4bf]" />}
+          </div>
+          <span className="text-slate-700 ml-1">
+            {existingSong ? 'Editar Materiales' : 'Cargar Nuevo Canto'}
+          </span>
         </h2>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-slate-600 mb-1 text-left">Título del Canto</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1 text-left">Título del Canto</label>
             <input 
-              required className="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#2dd4bf] outline-none"
+              required className="w-full bg-white/70 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#2dd4bf] outline-none"
               value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ej. Aleluya Haendel"
             />
           </div>
 
           <div className="space-y-4 text-left">
-            <p className="font-bold text-sm text-slate-800 border-b pb-1">Audios (MP3)</p>
-            <FileInput label="Pista General" type="pista" accept="audio/*" />
+            <p className="font-bold text-sm text-slate-700 border-b pb-1">Audios (MP3)</p>
+            <FileInput label="Pista General" type="pista" accept="audio/*"  />
             <FileInput label="Voz Soprano" type="soprano" accept="audio/*" />
             <FileInput label="Voz Contralto" type="contralto" accept="audio/*" />
           </div>
 
           <div className="space-y-4 text-left">
-            <p className="font-bold text-sm text-slate-800 border-b pb-1">Audios (MP3)</p>
+            <p className="font-bold text-sm text-slate-700 border-b pb-1">Audios (MP3)</p>
             <FileInput label="Voz Tenor" type="tenor" accept="audio/*" />
             <FileInput label="Voz Barítono" type="baritono" accept="audio/*" />
             <FileInput label="Voz Bajo" type="bajo" accept="audio/*" />
           </div>
 
           <div className="space-y-4 text-left">
-            <p className="font-bold text-sm text-slate-800 border-b pb-1">Otros Materiales</p>
+            <p className="font-bold text-sm text-slate-700 border-b pb-1">Otros Materiales</p>
             <FileInput label="Partitura / Letra (PDF)" type="pdf" accept=".pdf" />
           </div>
 
