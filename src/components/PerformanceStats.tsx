@@ -16,7 +16,7 @@ const PerformanceStats = () => {
 
   return (
     <div className="w-full h-full rounded-3xl glass p-6 overflow-hidden flex flex-col">
-        <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <h2 className="text-lg md:text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <TrendingUp className="text-blue-500" size={24} /> Rendimiento
         </h2>
         
@@ -32,8 +32,8 @@ const PerformanceStats = () => {
                 </div>
                 <div>
                 {/* AUMENTADO A text-5xl */}
-                <h3 className="text-5xl font-black text-slate-700 tracking-tight">{stats.percentage}%</h3>
-                <p className="text-xs text-slate-500 font-medium mt-1">Asistencia Histórica</p>
+                <h3 className="text-4xl md:text-5xl font-black text-slate-700 tracking-tight">{stats.percentage}%</h3>
+                <p className="text-xs md:text-sm text-slate-500 font-medium mt-1">Asistencia Histórica</p>
                 </div>
                 {/* Barra de progreso visual */}
                 <div className="w-full h-1.5 bg-slate-200 rounded-full mt-2 overflow-hidden">
@@ -52,8 +52,8 @@ const PerformanceStats = () => {
                 </div>
                 <div>
                 {/* AUMENTADO A text-5xl */}
-                <h3 className="text-5xl font-black text-slate-700 tracking-tight">{stats.totalSongs}</h3>
-                <p className="text-xs text-slate-500 font-medium mt-1">Cantos Disponibles</p>
+                <h3 className="text-4xl md:text-5xl font-black text-slate-700 tracking-tight">{stats.totalSongs}</h3>
+                <p className="text-xs md:text-sm text-slate-500 font-medium mt-1">Cantos Disponibles</p>
                 </div>
                 <div className="w-full h-1.5 bg-slate-200 rounded-full mt-2 overflow-hidden">
                 {/* Barra decorativa (ej. meta de 200 cantos) */}

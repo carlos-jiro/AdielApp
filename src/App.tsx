@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAppStore } from './lib/store';
+
 // ... tus imports de páginas ...
 import Login from './pages/login/Login';
 import Dashboard from './pages/dashboard/Dashboard';
@@ -15,31 +16,28 @@ import Header from './components/Header';
 import Settings from './pages/settings/Settings';
 import Members from './pages/memebers/Members';
 
+import GlobalPlayer from './components/GlobalPlayer';
+
 function App() {
   const fetchGroupInfo = useAppStore((state) => state.fetchGroupInfo);
   const fetchUserInfo = useAppStore((state) => state.fetchUserInfo);
   const fetchMembers = useAppStore((state) => state.fetchMembers);
   const fetchSongs = useAppStore((state) => state.fetchSongs); 
-  // 1. Agregamos el selector para las estadísticas
   const fetchAttendanceStats = useAppStore((state) => state.fetchAttendanceStats);
 
   const [session, setSession] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Estas funciones son asíncronas, pero al lanzarlas aquí sin await,
-    // corren en paralelo en "segundo plano" mientras la UI sigue su curso.
     fetchGroupInfo();
     fetchUserInfo();
     fetchMembers();
     fetchSongs(); 
-    // 2. Intentamos cargar estadísticas al inicio (si ya hay sesión persistida)
     fetchAttendanceStats(); 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    // ... tu lógica de autenticación ...
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false); 
@@ -47,12 +45,10 @@ function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      // Opcional: Si el usuario hace login, recargar datos por si acaso
       if(session) {
          fetchGroupInfo();
          fetchUserInfo();
          fetchSongs();
-         // 3. Recargamos estadísticas al detectar cambio de sesión (Login exitoso)
          fetchAttendanceStats();
       }
     });
@@ -61,7 +57,6 @@ function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ... resto del renderizado (sin cambios) ...
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -81,22 +76,39 @@ function App() {
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       ) : (
-        <div className="flex min-h-screen">
+        // CAMBIO 1: 'h-screen' (fijo) y 'overflow-hidden'. 
+        // Esto evita que la página entera haga scroll, forzando a que solo el contenido interno lo haga.
+        <div className="flex h-screen overflow-hidden "> 
+          
           <Navbar />
-          <main className="flex-1 ml-80">
+          
+          {/* CAMBIO 2: 
+              - 'w-full': Asegura que en móvil tome el 100% del ancho.
+              - 'overflow-y-auto': Permite que el contenido general haga scroll si no es una página especial.
+              - Quitamos 'pb-24' de aquí para manejarlo dinámicamente o dentro de las páginas.
+          */}
+          <main className="flex-1 w-full ml-0 md:ml-80 transition-all duration-300 h-full overflow-y-auto">
             <Header />
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/project/:id" element={<ProjectDetail />} />
-              <Route path="/song/:id" element={<SongDetail />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/tutorials" element={<Tutorials />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/members" element={<Members />} />
-              <Route path="/login" element={<Navigate to="/" />} />
-            </Routes>
+            
+            {/* Contenedor de Rutas */}
+            <div className="pb-24 md:pb-0"> {/* Espacio seguro para el player solo en móvil si hace falta */}
+                <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/projects" element={<Projects />} />
+                <Route path="/project/:id" element={<ProjectDetail />} />
+                <Route path="/song/:id" element={<SongDetail />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/tutorials" element={<Tutorials />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/members" element={<Members />} />
+                <Route path="/login" element={<Navigate to="/" />} />
+                </Routes>
+            </div>
           </main>
+
+          {/* Player Global Flotante */}
+          <GlobalPlayer />
+
         </div>
       )}
     </Router>

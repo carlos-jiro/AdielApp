@@ -1,28 +1,32 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
+import { useAppStore } from '../../lib/store';
 import type { Song, SongAsset } from '../../lib/types';
-import { ArrowLeft, Music, FileText, Download, PlayCircle, Edit } from 'lucide-react';
-import UploadSongModal from '../../components/UploadSongModal'; // <--- 1. Importar Modal
+import { ArrowLeft, Music, FileText, Download, Play, Pause, Edit } from 'lucide-react';
+import UploadSongModal from '../../components/UploadSongModal';
 
 const SongDetail = () => {
   const { id } = useParams<{ id: string }>();
+  
+  // --- STORE HOOKS ---
+  const playQueue = useAppStore((state) => state.playQueue);
+  const activeTrack = useAppStore((state) => state.activeTrack);
+  const isPlaying = useAppStore((state) => state.isPlaying);
+
+  // --- ESTADOS LOCALES ---
   const [song, setSong] = useState<Song | null>(null);
   const [assets, setAssets] = useState<SongAsset[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // 2. Estado para el modal de edición
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   async function fetchSongData() {
     try {
       setLoading(true);
-      // Traer Canto
       const { data: songData, error: songError } = await supabase
         .from('songs').select('*').eq('id', id).single();
       if (songError) throw songError;
 
-      // Traer Archivos
       const { data: assetsData, error: assetsError } = await supabase
         .from('song_assets').select('*').eq('song_id', id);
       if (assetsError) throw assetsError;
@@ -44,10 +48,42 @@ const SongDetail = () => {
   const pdfAsset = assets.find(a => a.type === 'pdf');
   const audioAssets = assets.filter(a => a.type !== 'pdf');
 
+  // --- LÓGICA DE COLA DE REPRODUCCIÓN (MODIFICADA) ---
+  const handlePlayAsset = (assetId: string) => {
+    if (!song) return;
+
+    // 1. Crear la playlist con todos los audios de este canto
+    const queueTracks = audioAssets.map(asset => ({
+        id: asset.id,
+        // CAMBIO AQUÍ: 
+        // Title = Nombre del Canto (ej. "Agnus Dei")
+        title: song.title, 
+        // Author = El TIPO de pista (ej. "Soprano", "Tenor", "Instrumental")
+        // Si quieres que también salga el autor original puedes poner: `${asset.type} - ${song.author}`
+        author: asset.type.toUpperCase(), 
+        url: asset.file_url
+    }));
+
+    // 2. Encontrar cuál se clickeó para empezar ahí
+    const startIndex = queueTracks.findIndex(t => t.id === assetId);
+
+    // 3. Lanzar al store
+    if (startIndex !== -1) {
+        playQueue(queueTracks, startIndex);
+    }
+  };
+
+  // Helper visual para saber si ESTE archivo específico está sonando
+  // Comparamos URL y verificamos que esté en Play
+  const isThisPlaying = (url: string) => {
+      return isPlaying && activeTrack?.url === url;
+  };
+
   if (loading) return <div className="p-20 text-center text-[#2dd4bf] animate-pulse">Cargando materiales...</div>;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20"> 
+      
       <Link to={`/projects`} className="flex items-center gap-2 text-slate-500 hover:text-[#2dd4bf] transition-colors w-fit">
         <ArrowLeft size={20} /> <span>Volver al disco</span>
       </Link>
@@ -56,7 +92,6 @@ const SongDetail = () => {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-4xl font-bold text-slate-800">{song?.title}</h1>
-            {/* 3. Botón de Editar */}
             <button 
               onClick={() => setIsEditOpen(true)}
               className="p-2 bg-slate-100 text-slate-500 rounded-full hover:bg-[#2dd4bf] hover:text-white transition-all shadow-sm"
@@ -76,6 +111,7 @@ const SongDetail = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
         {/* COLUMNA IZQUIERDA: Audios */}
         <div className="lg:col-span-2 space-y-4">
           <h3 className="font-bold text-slate-700 text-lg flex items-center gap-2">
@@ -85,22 +121,50 @@ const SongDetail = () => {
           {audioAssets.length > 0 ? (
             <div className="grid gap-4">
               {audioAssets.map((asset) => (
-                <div key={asset.id} className="glass p-4 rounded-2xl flex flex-col gap-3 border border-white/50 shadow-sm hover:shadow-md transition-all">
-                  <div className="flex justify-between items-center px-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#2dd4bf]/20 flex items-center justify-center text-[#2dd4bf]">
-                        <PlayCircle size={18} />
-                      </div>
-                      <span className="font-bold text-slate-700 uppercase text-sm tracking-wide">{asset.type}</span>
+                <div key={asset.id} className={`
+                    glass p-4 rounded-2xl flex items-center justify-between border shadow-sm transition-all
+                    ${isThisPlaying(asset.file_url) ? 'border-[#2dd4bf] bg-[#2dd4bf]/5' : 'border-white/50 hover:shadow-md'}
+                `}>
+                  
+                  <div className="flex items-center gap-4">
+                    {/* BOTÓN PLAY CONECTADO A LA COLA */}
+                    <button 
+                        onClick={() => handlePlayAsset(asset.id)}
+                        className={`
+                            w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md
+                            ${isThisPlaying(asset.file_url) 
+                                ? 'bg-[#2dd4bf] text-white scale-105' 
+                                : 'bg-white text-slate-700 hover:bg-[#2dd4bf] hover:text-white'
+                            }
+                        `}
+                    >
+                        {isThisPlaying(asset.file_url) ? (
+                             <Pause size={20} fill="currentColor" />
+                        ) : (
+                             <Play size={20} fill="currentColor" className="ml-1" />
+                        )}
+                    </button>
+
+                    <div className="flex flex-col">
+                        {/* Nombre del archivo/tipo (ej. SOPRANO) */}
+                        <span className="font-bold text-slate-700 uppercase text-sm tracking-wide">{asset.type}</span>
+                        
+                        {/* Indicador de "Reproduciendo..." */}
+                        {isThisPlaying(asset.file_url) && (
+                            <span className="text-xs text-[#2dd4bf] font-medium animate-pulse">Reproduciendo...</span>
+                        )}
                     </div>
-                    <a href={asset.file_url} download className="text-slate-400 hover:text-[#2dd4bf]" title="Descargar MP3">
-                      <Download size={18} />
-                    </a>
                   </div>
-                  <audio controls className="w-full h-8 accent-[#2dd4bf]">
-                    <source src={asset.file_url} type="audio/mpeg" />
-                    Tu navegador no soporta el elemento de audio.
-                  </audio>
+
+                  <a 
+                    href={asset.file_url} 
+                    download 
+                    className="p-2 text-slate-400 hover:text-[#2dd4bf] hover:bg-[#2dd4bf]/10 rounded-full transition-colors" 
+                    title="Descargar MP3"
+                  >
+                    <Download size={20} />
+                  </a>
+
                 </div>
               ))}
             </div>
@@ -140,14 +204,13 @@ const SongDetail = () => {
         </div>
       </div>
 
-      {/* 4. Renderizar el Modal en Modo Edición */}
       {song && (
         <UploadSongModal
           isOpen={isEditOpen}
           onClose={() => setIsEditOpen(false)}
-          projectId={song.project_id} // Necesario aunque no creemos uno nuevo
-          onRefresh={fetchSongData}   // Recargar datos al guardar
-          existingSong={{ id: song.id, title: song.title }} // PASAMOS LOS DATOS ACTUALES
+          projectId={song.project_id} 
+          onRefresh={fetchSongData}
+          existingSong={{ id: song.id, title: song.title }} 
         />
       )}
     </div>
@@ -155,4 +218,3 @@ const SongDetail = () => {
 };
 
 export default SongDetail;
-
