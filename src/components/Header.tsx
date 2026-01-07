@@ -66,6 +66,9 @@ const Header = () => {
   const { title, icon: Icon, color } = getPageConfig();
   const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userInfo?.full_name || 'Usuario')}&background=2dd4bf&color=fff`;
 
+  // Lógica para mostrar buscador en móvil SOLO si estamos en '/projects'
+  const isProjectsPage = location.pathname === '/projects';
+
   return (
     <header className="flex flex-wrap md:flex-nowrap items-center justify-between px-4 py-4 md:py-2 mt-0 md:mt-6 mb-4 md:mb-8 gap-x-4 relative z-40">
       
@@ -83,9 +86,12 @@ const Header = () => {
       </div>
 
       {/* --- 2. BUSCADOR --- 
-          MODIFICADO: 'hidden md:flex' para ocultarlo en móviles y mostrarlo en desktop
+          CAMBIO AQUI: Condicional para móvil basado en la ruta actual
       */}
-      <div className="hidden md:flex order-3 md:order-2 w-full md:w-auto justify-center md:mx-auto mt-5 md:mt-0 transition-all">
+      <div className={`
+        ${isProjectsPage ? 'flex' : 'hidden'} md:flex 
+        order-3 md:order-2 w-full md:w-auto justify-center md:mx-auto mt-5 md:mt-0 transition-all
+      `}>
         
         <div 
             className="relative w-full md:w-80" 

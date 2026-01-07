@@ -10,7 +10,6 @@ import Projects from './pages/projects/Projects';
 import SongDetail from './pages/projects/SongDetail';
 import Calendar from './pages/calendar/Calendar';
 import Tutorials from './pages/tutorials/Tutorials';
-import ProjectDetail from './pages/projects/ProjectDetail';
 import Navbar from './components/Navbar';
 import Header from './components/Header';
 import Settings from './pages/settings/Settings';
@@ -95,7 +94,6 @@ function App() {
                 <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/projects" element={<Projects />} />
-                <Route path="/project/:id" element={<ProjectDetail />} />
                 <Route path="/song/:id" element={<SongDetail />} />
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/tutorials" element={<Tutorials />} />
