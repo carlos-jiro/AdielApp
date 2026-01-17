@@ -1,9 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+//src/pages/settings/Settings.tsx
+// Utils
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { User, Save, Music2, Award, Camera, Loader2, Building2, Calendar, FileText, Lock, KeyRound } from 'lucide-react';
 import { compressImage } from '../../lib/imageUtils';
-import { useAppStore } from '../../lib/store'; 
+import { useAppStore } from '../../store/useAppStore'; 
+// Icons
+import { 
+  Building2, 
+  KeyRound, 
+  FileText, 
+  Calendar, 
+  Loader2, 
+  Camera, 
+  Music2, 
+  Award, 
+  Lock, 
+  Save, 
+  User, 
+} from 'lucide-react';
 
 // --- INTERFACES ---
 interface GroupInfo {

@@ -1,8 +1,19 @@
-import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Music, Calendar, Youtube, Settings, Building2, Users, Menu, X } from 'lucide-react';
+import { useAppStore } from '../store/useAppStore';
+import { useState, useEffect } from 'react';
 import type { ComponentType } from 'react';
-import { useAppStore } from '../lib/store';
+// Icons
+import { 
+  LayoutDashboard, 
+  Building2, 
+  Calendar, 
+  Settings, 
+  Youtube, 
+  Music, 
+  Users, 
+  Menu, 
+  X 
+} from 'lucide-react';
 
 // --- NAVITEM ORIGINAL ---
 const NavItem = ({ to, icon: Icon, label, onClick }: { to: string, icon: ComponentType<{ size: number }>, label: string, onClick?: () => void }) => {

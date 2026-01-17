@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAppStore } from '../lib/store';
+import { useAppStore } from '../store/useAppStore';
 import { X, Plus, Search, Music, Disc } from 'lucide-react';
 import type { Song } from '../lib/types';
 

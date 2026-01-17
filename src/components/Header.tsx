@@ -1,4 +1,6 @@
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useAppStore } from '../store/useAppStore';
 import { 
   Search, 
   Bell, 
@@ -11,8 +13,6 @@ import {
   FileText,
   X 
 } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useAppStore } from '../lib/store';
 
 const Header = () => {
   const location = useLocation();

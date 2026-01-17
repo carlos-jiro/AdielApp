@@ -1,7 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useAppStore } from '../store/useAppStore';
 import { supabase } from '../lib/supabaseClient';
-import { Music2, Award, Calendar, Loader2, X, Shield, Edit2, Save, XCircle } from 'lucide-react';
-import { useAppStore } from '../lib/store';
+import { useState, useEffect } from 'react';
+// Icons
+import { 
+    Calendar, 
+    XCircle,
+    Loader2,
+    Music2,
+    Shield,
+    Award,
+    Edit2,
+    Save,
+    X,
+} from 'lucide-react';
 
 interface Props {
   userId: string;

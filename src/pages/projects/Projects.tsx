@@ -1,14 +1,26 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { useAppStore } from '../../lib/store'; 
-import { Link } from 'react-router-dom';
+// src/pages/projects/Projects.tsx
+// Utils
+import { useAppStore } from '../../store/useAppStore'; 
 import type { Project, Song } from '../../lib/types'; 
-import ProjectCard from '../../components/ProjectCard';
+import { supabase } from '../../lib/supabaseClient';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+// Components
+import AddExistingSongModal from '../../components/AddExistingSongModal'; 
 import CreateProjectModal from '../../components/CreateProjectModal';
 import UploadSongModal from '../../components/UploadSongModal';
-import AddExistingSongModal from '../../components/AddExistingSongModal'; 
-// Agregamos ArrowLeft para el botón de regresar en móvil
-import { Plus, Music, ChevronRight, Trash2, LayoutGrid, Layers, Loader2, ArrowLeft } from 'lucide-react';
+import ProjectCard from '../../components/ProjectCard';
+// Icons
+import { 
+  ChevronRight, 
+  LayoutGrid, 
+  ArrowLeft,
+  Loader2, 
+  Layers, 
+  Trash2, 
+  Music, 
+  Plus, 
+} from 'lucide-react';
 
 const Projects = () => {
   // --- ESTADOS GLOBALES ---

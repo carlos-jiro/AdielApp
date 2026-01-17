@@ -1,6 +1,11 @@
+import { useAppStore } from '../store/useAppStore';
 import { useEffect } from 'react';
-import { TrendingUp, Users, Music } from 'lucide-react';
-import { useAppStore } from '../lib/store';
+// Icons
+import { 
+    TrendingUp, 
+    Users, 
+    Music,
+} from 'lucide-react';
 
 const PerformanceStats = () => {
   const stats = useAppStore(state => state.attendanceStats);

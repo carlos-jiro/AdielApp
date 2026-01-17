@@ -1,10 +1,22 @@
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { supabase } from '../../lib/supabaseClient';
-import { useAppStore } from '../../lib/store';
+//src/pages/projects/SongDetail.tsx
+// Utils
 import type { Song, SongAsset } from '../../lib/types';
-import { ArrowLeft, Music, FileText, Download, Play, Pause, Edit } from 'lucide-react';
+import { useAppStore } from '../../store/useAppStore';
+import { supabase } from '../../lib/supabaseClient';
+import { useParams, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+// Components
 import UploadSongModal from '../../components/UploadSongModal';
+// Icons
+import { 
+  ArrowLeft, 
+  FileText, 
+  Download, 
+  Music, 
+  Pause, 
+  Play, 
+  Edit 
+} from 'lucide-react';
 
 const SongDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -86,7 +98,7 @@ const SongDetail = () => {
         <div className="w-full md:w-auto">
           <div className="flex items-center justify-between md:justify-start gap-3">
             {/* Título */}
-            <h1 className="text-2xl md:text-4xl font-bold text-slate-800 break-words line-clamp-2 leading-tight">
+            <h1 className="text-2xl md:text-4xl font-bold text-slate-800 wrap-break-word line-clamp-2 leading-tight">
                 {song?.title}
             </h1>
             
