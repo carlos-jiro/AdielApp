@@ -1,6 +1,6 @@
 import { X, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Volume1 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useAppStore } from '../store/useAppStore';
+import { useAppStore } from '../../store/useAppStore';
 
 const GlobalPlayer = () => {
   const { 

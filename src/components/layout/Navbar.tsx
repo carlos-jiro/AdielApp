@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useAppStore } from '../store/useAppStore';
+import { useAppStore } from '../../store/useAppStore';
 import { useState, useEffect } from 'react';
 import type { ComponentType } from 'react';
 // Icons

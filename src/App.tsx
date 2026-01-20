@@ -7,19 +7,20 @@ import { useAppStore } from './store/useAppStore';
 
 // Pages
 import Dashboard from './pages/dashboard';
+import Calendar from './pages/calendar';
+
 //olds
 import SongDetail from './pages/projects/SongDetail';
 import Tutorials from './pages/tutorials/Tutorials';
 import Projects from './pages/projects/Projects';
-import Calendar from './pages/calendar/Calendar';
 import Settings from './pages/settings/Settings';
 import Members from './pages/memebers/Members';
-import Navbar from './components/Navbar';
-import Header from './components/Header';
+import Navbar from './components/layout/Navbar';
+import Header from './components/layout/Header';
 import Login from './pages/login/Login';
 
 // Components
-import GlobalPlayer from './components/GlobalPlayer';
+import GlobalPlayer from './components/global/GlobalPlayer';
 
 function App() {
   const fetchAttendanceStats = useAppStore((state) => state.fetchAttendanceStats);
