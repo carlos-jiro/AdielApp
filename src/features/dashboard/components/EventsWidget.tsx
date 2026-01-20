@@ -1,41 +1,11 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom'; // 1. Importamos Link
-import { supabase } from '../lib/supabaseClient'; 
+import { Link } from 'react-router-dom';
 import { Calendar, CheckCircle2, MapPin } from 'lucide-react';
 import { format, isToday } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useUpcomingEvents } from '../hooks/useUpcomingEvents';
 
-interface Activity {
-  id: string;
-  title: string;
-  event_date: string;
-  location: string;
-  color: string;
-}
-
-const UpcomingEvents = () => {
-  const [events, setEvents] = useState<Activity[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUpcomingEvents = async () => {
-      const todayISO = new Date().toISOString().split('T')[0];
-
-      const { data, error } = await supabase
-        .from('activities')
-        .select('id, title, event_date, location, color')
-        .gte('event_date', todayISO)
-        .order('event_date', { ascending: true })
-        .limit(5);
-
-      if (!error && data) {
-        setEvents(data);
-      }
-      setLoading(false);
-    };
-
-    fetchUpcomingEvents();
-  }, []);
+const EventsWidget = () => {
+  const { events, loading } = useUpcomingEvents();
 
   return (
     <div className="w-full h-full rounded-3xl glass p-6 overflow-hidden flex flex-col relative group">
@@ -44,7 +14,6 @@ const UpcomingEvents = () => {
           <Calendar className="text-[#2dd4bf]" size={24} /> Próximos Eventos
         </h2>
         
-        {/* 2. Botón modificado con el estilo del Nav Activo */}
         <Link 
           to="/calendar" 
           className="flex items-center gap-2 px-4 py-1.5 rounded-xl transition-all duration-200 bg-[#2dd4bf] text-white shadow-md hover:scale-105 text-sm font-medium"
@@ -55,7 +24,10 @@ const UpcomingEvents = () => {
 
       <div className="flex-1 overflow-y-auto hide-scrollbar flex flex-col gap-3">
         {loading ? (
-          <p className="text-slate-400 text-sm text-center mt-10">Cargando eventos...</p>
+          <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#2dd4bf]"></div>
+            <p className="text-sm">Cargando...</p>
+          </div>
         ) : events.length === 0 ? (
           <p className="text-slate-400 text-sm text-center mt-10">No hay eventos próximos.</p>
         ) : (
@@ -73,7 +45,6 @@ const UpcomingEvents = () => {
                 key={event.id} 
                 className="bg-white/40 hover:bg-white/70 transition-all p-3 rounded-2xl flex items-center gap-4 border border-white/50 shadow-sm cursor-pointer group/item"
               >
-                {/* Fecha Box con Color Dinámico */}
                 <div 
                   className="flex flex-col items-center justify-center w-14 h-14 rounded-xl shrink-0 font-bold text-white shadow-md transition-colors"
                   style={{ backgroundColor: event.color || '#2dd4bf' }} 
@@ -110,4 +81,4 @@ const UpcomingEvents = () => {
   );
 };
 
-export default UpcomingEvents;
+export { EventsWidget };

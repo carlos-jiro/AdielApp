@@ -6,8 +6,9 @@ import { useEffect, useState } from 'react';
 import { useAppStore } from './store/useAppStore';
 
 // Pages
+import Dashboard from './pages/dashboard';
+//olds
 import SongDetail from './pages/projects/SongDetail';
-import Dashboard from './pages/dashboard/Dashboard';
 import Tutorials from './pages/tutorials/Tutorials';
 import Projects from './pages/projects/Projects';
 import Calendar from './pages/calendar/Calendar';

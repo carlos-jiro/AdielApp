@@ -1,17 +1,39 @@
+// src/pages/calendar/Calendar.tsx
+// Utils and Styles
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useState, useEffect, useCallback } from 'react';
-import { Calendar as BigCalendar, dateFnsLocalizer, type View, type ToolbarProps, type EventProps } from 'react-big-calendar';
-import { format } from 'date-fns/format';
-import { parse } from 'date-fns/parse';
+import { supabase } from '../../lib/supabaseClient';
 import { startOfWeek } from 'date-fns/startOfWeek';
-import { getDay } from 'date-fns/getDay';
 import { isSameMonth } from 'date-fns/isSameMonth';
 import { isSameYear } from 'date-fns/isSameYear';
+import { format } from 'date-fns/format';
+import { getDay } from 'date-fns/getDay';
 import { es } from 'date-fns/locale/es';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { supabase } from '../../lib/supabaseClient';
-import { Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon, List, MapPin, Clock } from 'lucide-react';
-import AddEventModal from '../../components/AddEventModal';
+import { parse } from 'date-fns/parse';
+
+// Components
 import EventDetailsModal from '../../components/EventDetailsModal';
+import AddEventModal from '../../components/AddEventModal';
+
+// React Big Calendar
+import { 
+  Calendar as BigCalendar, 
+  type ToolbarProps, 
+  dateFnsLocalizer, 
+  type EventProps, 
+  type View, 
+} from 'react-big-calendar';
+
+// Icons
+import { 
+  Calendar as CalendarIcon, 
+  ChevronRight, 
+  ChevronLeft, 
+  MapPin, 
+  Clock,
+  List, 
+  Plus, 
+} from 'lucide-react';
 
 const locales = { 'es': es };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
