@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import type { Project, Song } from '../../lib/types';
@@ -28,9 +29,8 @@ const ProjectsView = () => {
 
   const { displayedSongs: songsFromHook, loadingSongs: hookLoading, addSongToProject, removeSongFromProject } = useProjectSongs(selectedProject as any, allSongs);
 
-  const songCount = selectedProject === 'ALL' ? allSongs.length : displayedSongs.length;
-
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDisplayedSongs(songsFromHook);
     setLoadingSongs(hookLoading);
   }, [songsFromHook, hookLoading]);

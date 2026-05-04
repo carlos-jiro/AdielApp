@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
-import type { SongAsset } from '../../lib/types';
 import { ArrowLeft, Music, FileText, Download, Play, Pause, Edit } from 'lucide-react';
 import { useSongDetails } from './hooks/useSongDetails';
 import UploadSongModal from './components/UploadSongModal';
