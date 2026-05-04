@@ -5,6 +5,8 @@ import type { StateCreator } from 'zustand';
 export const createUserSlice: StateCreator<AppState, [], [], UserSlice> = (set, get) => ({
   userInfo: null,
   attendanceStats: { percentage: 0, trend: 0, totalSongs: 0 },
+  // theme preference (gradient key)
+  gradientKey: typeof window !== 'undefined' ? (localStorage.getItem('app_gradient') || 'pink-blue') : 'pink-blue',
 
   setUserInfo: (info) => set({ userInfo: info }),
 
@@ -63,5 +65,13 @@ export const createUserSlice: StateCreator<AppState, [], [], UserSlice> = (set, 
     } catch (error) {
       console.error("Error fetching stats:", error);
     }
+  },
+  setGradient: (key: string) => {
+    try {
+      localStorage.setItem('app_gradient', key);
+    } catch (e) {
+      // ignore
+    }
+    set({ gradientKey: key });
   },
 });

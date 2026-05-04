@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { compressImage } from '../../lib/imageUtils';
 import { useAppStore } from '../../store/useAppStore'; 
+import { gradients } from '../../lib/gradients';
 // Icons
 import { 
   Building2, 
@@ -56,6 +57,10 @@ const Settings = () => {
   });
   const [savingGroup, setSavingGroup] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  // Theme / Gradients
+  const selectedGradient = useAppStore((s) => s.gradientKey);
+  const setGradient = useAppStore((s) => s.setGradient);
 
   // --- NUEVO ESTADO: CONTRASEÑA ---
   const [passwordForm, setPasswordForm] = useState({
@@ -245,7 +250,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 max-w-6xl mx-auto p-6">
+    <div className="space-y-8 animate-in fade-in duration-700 max-w-6xl mx-auto p-6 h-full overflow-auto custom-scrollbar">
       
       {/* --- SECCIÓN 0: IDENTIDAD DEL GRUPO --- */}
       <div className="glass rounded-3xl p-8 border border-white/50 relative overflow-hidden">
@@ -490,6 +495,36 @@ const Settings = () => {
             </button>
           </div>
         </form>
+      </div>
+      {/* --- SECCIÓN 3: GRADIENTES --- */}
+      <div className="glass rounded-3xl p-8 border border-white/50 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-pink-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-3 bg-pink-100 rounded-2xl text-pink-600">
+            <Loader2 size={24} />
+          </div>
+          <div>
+              <h2 className="text-2xl font-bold text-slate-800">Apariencia</h2>
+              <p className="text-slate-500 text-sm">Elige un fondo degradado para la aplicación</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {gradients.map(g => (
+            <button
+              key={g.key}
+              onClick={() => setGradient(g.key)}
+              className={`rounded-2xl p-3 h-28 flex flex-col items-start justify-between border-2 transition-all overflow-hidden text-left ${selectedGradient === g.key ? 'ring-4 ring-offset-2 ring-indigo-300' : 'border-transparent'}`}
+            >
+              <div className="w-full h-16 rounded-lg shadow-inner" style={{ background: g.css }} />
+              <div className="text-sm font-medium text-slate-700 mt-2">{g.label}</div>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <button onClick={() => setGradient('pink-blue')} className="text-sm text-slate-600 hover:underline">Restaurar predeterminado</button>
+        </div>
       </div>
 
     </div>

@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
-import { ArrowLeft, Music, FileText, Download, Play, Pause, Edit } from 'lucide-react';
+import { ArrowLeft, Music, FileText, Download, Play, Pause, Edit, Trash2 } from 'lucide-react';
 import { useSongDetails } from './hooks/useSongDetails';
 import UploadSongModal from './components/UploadSongModal';
+import { supabase } from '../../lib/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 const SongDetailView = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { song, assets, loading, refetch } = useSongDetails(id);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [deletingAssetId, setDeletingAssetId] = useState<string | null>(null);
+  const [deletingSong, setDeletingSong] = useState(false);
 
   const playQueue = useAppStore((state) => state.playQueue);
   const activeTrack = useAppStore((state) => state.activeTrack);
@@ -38,6 +43,83 @@ const SongDetailView = () => {
       return isPlaying && activeTrack?.url === url;
   };
 
+  const parseJsonSafe = async (response: Response) => {
+    try {
+      return await response.json();
+    } catch {
+      const text = await response.text().catch(() => '');
+      return text ? { _text: text } : {};
+    }
+  };
+
+  const handleDeleteAsset = async (assetId: string) => {
+    const confirmed = confirm('¿Eliminar esta pista?');
+    if (!confirmed) return;
+
+    try {
+      setDeletingAssetId(assetId);
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('No session token');
+
+      const resp = await fetch('/api/delete-song-asset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ assetId }),
+      });
+
+      const json = await parseJsonSafe(resp);
+      if (!resp.ok) {
+        const msg = json?.error || json?.details || json?._text || 'Error eliminando pista';
+        throw new Error(msg);
+      }
+
+      await refetch();
+    } catch (err: any) {
+      alert('Error eliminando pista: ' + (err.message || err));
+    } finally {
+      setDeletingAssetId(null);
+    }
+  };
+
+  const handleDeleteSong = async () => {
+    if (!song) return;
+    const confirmed = confirm('¿Eliminar este canto completo? Se borrarán todas las pistas y el PDF.');
+    if (!confirmed) return;
+
+    try {
+      setDeletingSong(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('No session token');
+
+      const resp = await fetch('/api/delete-song', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ songId: song.id }),
+      });
+
+      const json = await parseJsonSafe(resp);
+      if (!resp.ok) {
+        const msg = json?.error || json?.details || json?._text || 'Error eliminando canto';
+        throw new Error(msg);
+      }
+
+      alert('Canto eliminado correctamente.');
+      navigate('/projects');
+    } catch (err: any) {
+      alert('Error eliminando canto: ' + (err.message || err));
+    } finally {
+      setDeletingSong(false);
+    }
+  };
+
   if (loading) return <div className="p-20 text-center text-[#2dd4bf] animate-pulse">Cargando materiales...</div>;
 
   return (
@@ -64,6 +146,15 @@ const SongDetailView = () => {
               title="Editar materiales del canto"
             >
               <Edit size={20} />
+            </button>
+
+            <button
+              onClick={handleDeleteSong}
+              disabled={deletingSong}
+              className="p-2 bg-red-50 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-sm shrink-0 disabled:opacity-50"
+              title="Eliminar canto completo"
+            >
+              <Trash2 size={20} />
             </button>
           </div>
           <p className="text-[#2dd4bf] text-sm md:text-base font-medium mt-1 md:mt-2">Materiales de estudio y ensayo</p>
@@ -131,14 +222,25 @@ const SongDetailView = () => {
                     </div>
                   </div>
 
-                  <a 
-                    href={asset.file_url} 
-                    download 
-                    className="p-2 text-slate-400 hover:text-[#2dd4bf] hover:bg-[#2dd4bf]/10 rounded-full transition-colors shrink-0" 
-                    title="Descargar MP3"
-                  >
-                    <Download size={20} className="md:w-5 md:h-5" />
-                  </a>
+                  <div className="flex items-center gap-1 md:gap-2 shrink-0">
+                    <a 
+                      href={asset.file_url} 
+                      download 
+                      className="p-2 text-slate-400 hover:text-[#2dd4bf] hover:bg-[#2dd4bf]/10 rounded-full transition-colors" 
+                      title="Descargar MP3"
+                    >
+                      <Download size={20} className="md:w-5 md:h-5" />
+                    </a>
+
+                    <button
+                      onClick={() => handleDeleteAsset(asset.id)}
+                      disabled={deletingAssetId === asset.id || deletingSong}
+                      className="p-2 text-red-500 hover:text-white hover:bg-red-500 rounded-full transition-colors disabled:opacity-50"
+                      title="Eliminar pista"
+                    >
+                      <Trash2 size={18} className="md:w-5 md:h-5" />
+                    </button>
+                  </div>
 
                 </div>
               ))}

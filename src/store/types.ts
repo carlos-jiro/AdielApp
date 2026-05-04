@@ -58,6 +58,9 @@ export interface PlayerSlice {
 export interface UserSlice {
   userInfo: UserInfo | null;
   attendanceStats: AttendanceStats;
+  // Theme preferences
+  gradientKey?: string;
+  setGradient: (key: string) => void;
   fetchUserInfo: () => Promise<void>;
   setUserInfo: (info: UserInfo) => void;
   fetchAttendanceStats: () => Promise<void>;

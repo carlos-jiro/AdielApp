@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { UserPlus, Shield, Users, ClipboardList, PieChart } from 'lucide-react';
+import { UserPlus, Shield, Users, ClipboardList, PieChart, Trash2 } from 'lucide-react';
 import type { Profile, LeftViewType } from './types';
 import InviteMemberModal from './components/InviteMemberModal';
 import MemberProfileView from './components/MemberProfileView';
@@ -55,6 +55,55 @@ const MembersView = () => {
       setLoading(false);
     }
   };
+
+    const handleDeleteMember = async (id: string) => {
+        if (!isAdmin) return;
+        if (id === myUserId) {
+            alert('No puedes eliminar tu propio usuario.');
+            return;
+        }
+
+        const confirmed = confirm('¿Estás seguro de que deseas eliminar este miembro? Esta acción no se puede deshacer.');
+        if (!confirmed) return;
+
+        try {
+            setLoading(true);
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            if (!token) throw new Error('No session token');
+
+            const resp = await fetch('/api/delete-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ id }),
+            });
+
+            // Parse response safely (handle empty/non-json bodies)
+            let json: any = null;
+            try {
+                json = await resp.json();
+            } catch (e) {
+                const text = await resp.text().catch(() => '');
+                json = text ? { _text: text } : {};
+            }
+
+            if (!resp.ok) {
+                const msg = json?.error || json?.details || json?._text || 'Error deleting user';
+                throw new Error(msg);
+            }
+
+            await fetchData();
+            alert('Miembro eliminado correctamente.');
+        } catch (err: any) {
+            console.error('Error eliminando miembro:', err);
+            alert('Error eliminando miembro: ' + (err.message || err));
+        } finally {
+            setLoading(false);
+        }
+    };
 
   // --- HANDLERS ---
   const handleProfileClick = (id: string) => {
@@ -123,12 +172,13 @@ const MembersView = () => {
                             <th className="px-6 py-4 rounded-tl-2xl">Miembro</th>
                             <th className="px-6 py-4">Voz</th>
                             <th className="px-6 py-4">Cargo</th>
+                            {isAdmin && <th className="px-6 py-4">Acciones</th>}
                             <th className="px-6 py-4 text-center rounded-tr-2xl">Estado</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         {loading ? (
-                            <tr><td colSpan={4} className="p-8 text-center text-slate-400 text-lg">Cargando equipo...</td></tr>
+                            <tr><td colSpan={isAdmin ? 5 : 4} className="p-8 text-center text-slate-400 text-lg">Cargando equipo...</td></tr>
                         ) : profiles.map((profile) => (
                             <tr 
                                 key={profile.id} 
@@ -173,10 +223,25 @@ const MembersView = () => {
                                     </span>
                                 </td>
 
-                                {/* Columna: Estado */}
-                                <td className="px-6 py-4 text-center">
-                                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#2dd4bf] shadow-sm"></span>
-                                </td>
+                                                                {/* Columna: Acciones (ADMIN) */}
+                                                                {isAdmin && (
+                                                                    <td className="px-6 py-4 text-left">
+                                                                        <div className="flex items-center justify-start gap-2">
+                                                                            <button
+                                                                                onClick={(e) => { e.stopPropagation(); handleDeleteMember(profile.id); }}
+                                                                                className="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md flex items-center gap-2 text-sm border border-red-100"
+                                                                                title="Eliminar miembro"
+                                                                            >
+                                                                                <Trash2 size={14} /> Eliminar
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                )}
+
+                                                                {/* Columna: Estado */}
+                                                                <td className="px-6 py-4 text-center">
+                                                                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#2dd4bf] shadow-sm"></span>
+                                                                </td>
                             </tr>
                         ))}
                     </tbody>

@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { supabase } from './lib/supabaseClient';
 import { useEffect, useState } from 'react';
 import { useAppStore } from './store/useAppStore';
+import { getGradient } from './lib/gradients';
 
 // Pages
 import Dashboard from './pages/dashboard';
@@ -28,6 +29,7 @@ function App() {
   const fetchUserInfo = useAppStore((state) => state.fetchUserInfo);
   const fetchMembers = useAppStore((state) => state.fetchMembers);
   const fetchSongs = useAppStore((state) => state.fetchSongs); 
+  const gradientKey = useAppStore((state) => state.gradientKey);
 
   const [session, setSession] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
@@ -86,7 +88,7 @@ function App() {
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       ) : (
-        <div className="flex h-screen overflow-hidden"> 
+        <div className="flex h-screen overflow-hidden" style={{ background: getGradient(gradientKey || 'pink-blue') }}>
           <Navbar />
           <main className="flex flex-col flex-1 w-full ml-0 md:ml-80 transition-all duration-300 h-full overflow-hidden min-h-0">
             <Header />
