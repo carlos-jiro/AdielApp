@@ -1,4 +1,4 @@
-import type { Project } from '../lib/types';
+import type { Project } from '../../../lib/types';
 import { Music, MousePointerClick } from 'lucide-react';
 
 interface Props {
@@ -21,10 +21,6 @@ const ProjectCard = ({ project, onClick, isActive }: Props) => {
         }
       `}
     >
-      {/* CAMBIO CLAVE 1: IMAGEN MÁS PEQUEÑA 
-         Bajamos de h-28 a h-20 en móviles.
-         Esto libera espacio vertical para el texto.
-      */}
       <div className={`
         relative shrink-0 transition-colors 
         h-20 sm:h-28 
@@ -43,32 +39,21 @@ const ProjectCard = ({ project, onClick, isActive }: Props) => {
         )}
       </div>
 
-      {/* CAMBIO CLAVE 2: PADDING COMPACTO
-         Usamos p-2.5 en vez de p-4 en móviles. 
-         flex-1 asegura que este contenedor ocupe todo el espacio sobrante.
-      */}
       <div className="p-2.5 sm:p-4 flex flex-col flex-1 min-h-0">
-        
-        {/* TÍTULO */}
         <h3 className={`
-            font-bold mb-1 leading-tight line-clamp-2 wrap-break-word
+            font-bold mb-1 leading-tight line-clamp-2 break-words
             text-xs sm:text-sm 
             ${isActive ? 'text-[#0d9488]' : 'text-slate-800'}
         `}>
             {project.name}
         </h3>
-        
-        {/* DESCRIPCIÓN */}
         <p className={`
             text-slate-400 leading-snug mb-2
             text-[10px] sm:text-xs
-            /* line-clamp-2 corta el texto si es demasiado largo para que no se salga */
+            line-clamp-2
         `}>
             {project.description || 'Sin descripción'}
         </p>
-        
-        {/* FOOTER (Ver cantos) */}
-        {/* mt-auto empuja esto al final de la tarjeta */}
         <div className="mt-auto flex items-center gap-1 font-bold transition-colors text-slate-300 pt-1">
            {isActive ? (
              <span className="text-[#2dd4bf] text-[10px] sm:text-xs">Seleccionado</span>

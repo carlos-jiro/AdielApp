@@ -70,7 +70,7 @@ const Header = () => {
   const isProjectsPage = location.pathname === '/projects';
 
   return (
-    <header className="flex flex-wrap md:flex-nowrap items-center justify-between px-4 py-4 md:py-2 mt-0 md:mt-6 mb-4 md:mb-8 gap-x-4 relative z-40">
+    <header className="flex flex-wrap md:flex-nowrap items-center justify-between px-4 py-4 md:py-0 mt-0 md:mt-6 mb-4 md:mb-8 gap-x-4 relative z-40">
       
       {/* --- 1. TÍTULO E ICONO --- */}
       <div className="absolute left-1/2 -translate-x-1/2 top-5 md:static md:inset-auto md:translate-x-0 md:translate-y-0 flex items-center gap-2 md:gap-3 order-1 md:flex-none md:w-auto pointer-events-none md:pointer-events-auto">

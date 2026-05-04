@@ -86,11 +86,11 @@ function App() {
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       ) : (
-        <div className="flex h-screen overflow-hidden "> 
+        <div className="flex h-screen overflow-hidden"> 
           <Navbar />
-          <main className="flex-1 w-full ml-0 md:ml-80 transition-all duration-300 h-full overflow-y-auto">
+          <main className="flex flex-col flex-1 w-full ml-0 md:ml-80 transition-all duration-300 h-full overflow-hidden min-h-0">
             <Header />
-            <div className="pb-24 md:pb-0">
+            <div className="flex-1 min-h-0 overflow-hidden pb-24 md:pb-0">
                 <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/projects" element={<Projects />} />
