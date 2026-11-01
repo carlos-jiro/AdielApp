@@ -1,27 +1,25 @@
 // src/App.tsx
 // Libraries
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { supabase } from './lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import { useEffect, useState } from 'react';
-import { useAppStore } from './store/useAppStore';
-import { getGradient } from './lib/gradients';
+import { useAppStore } from '@/store/useAppStore';
+import { getGradient } from '@/lib/gradients';
 
 // Pages
-import Dashboard from './pages/dashboard';
-import Calendar from './pages/calendar';
-
-//olds
-import SongDetail from './pages/projects/SongDetail';
-import Tutorials from './pages/tutorials/Tutorials';
-import Projects from './pages/projects/Projects';
-import Settings from './pages/settings/Settings';
-import Members from './pages/memebers/Members';
-import Navbar from './components/layout/Navbar';
-import Header from './components/layout/Header';
-import Login from './pages/login/Login';
+import Dashboard from '@/pages/dashboard';
+import Calendar from '@/pages/calendar';
+import SongDetail from '@/pages/projects/SongDetail';
+import Tutorials from '@/pages/tutorials/Tutorials';
+import Projects from '@/pages/projects/Projects';
+import Settings from '@/pages/settings/Settings';
+import Members from '@/pages/members/Members';
+import Login from '@/pages/login/Login';
 
 // Components
-import GlobalPlayer from './components/global/GlobalPlayer';
+import Navbar from '@/components/layout/Navbar';
+import Header from '@/components/layout/Header';
+import GlobalPlayer from '@/components/global/GlobalPlayer';
 
 function App() {
   const fetchAttendanceStats = useAppStore((state) => state.fetchAttendanceStats);

@@ -1,52 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createValidateAdmin, getStoragePathFromPublicUrl } from './lib/apiUtils';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-function decodeJwtPayload(token: string) {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const payload = Buffer.from(parts[1], 'base64').toString('utf8');
-    return JSON.parse(payload);
-  } catch {
-    return null;
-  }
-}
-
-function getStoragePathFromPublicUrl(fileUrl: string) {
-  const marker = '/storage/v1/object/public/music_assets/';
-  const index = fileUrl.indexOf(marker);
-  if (index === -1) return null;
-  return decodeURIComponent(fileUrl.substring(index + marker.length));
-}
-
-async function validateAdmin(token: string) {
-  const payload = decodeJwtPayload(token);
-  if (!payload || !payload.sub) {
-    return { ok: false, status: 401, error: 'Invalid token' } as const;
-  }
-
-  const requesterId = payload.sub;
-  const profileRes = await fetch(`${SUPABASE_URL}/rest/v1/profiles?select=role&id=eq.${requesterId}`, {
-    headers: {
-      apikey: SUPABASE_ANON_KEY as string,
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!profileRes.ok) {
-    return { ok: false, status: 403, error: 'Unable to validate requester' } as const;
-  }
-
-  const profileData = await profileRes.json().catch(() => []);
-  if (!Array.isArray(profileData) || !profileData[0] || profileData[0].role !== 'admin') {
-    return { ok: false, status: 403, error: 'Requires admin privileges' } as const;
-  }
-
-  return { ok: true } as const;
-}
+const validateAdmin = createValidateAdmin(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

@@ -2,24 +2,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
-
-function decodeJwtPayload(token: string) {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const payload = Buffer.from(parts[1], 'base64').toString('utf8');
-    return JSON.parse(payload);
-  } catch {
-    return null;
-  }
-}
-
-function getStoragePathFromPublicUrl(fileUrl: string) {
-  const marker = '/storage/v1/object/public/music_assets/';
-  const index = fileUrl.indexOf(marker);
-  if (index === -1) return null;
-  return decodeURIComponent(fileUrl.substring(index + marker.length));
-}
+import { getStoragePathFromPublicUrl, createValidateAdmin } from './api/lib/apiUtils'
 
 function deleteUserDevApiPlugin(env: Record<string, string>): Plugin {
   return {
@@ -47,29 +30,7 @@ function deleteUserDevApiPlugin(env: Record<string, string>): Plugin {
 
       const getToken = (req: any) => ((req.headers.authorization || '') as string).replace('Bearer ', '').trim();
 
-      type AdminCheck =
-        | { ok: true }
-        | { ok: false; error: string; status: number };
-
-      const validateAdmin = async (token: string): Promise<AdminCheck> => {
-        const payload = decodeJwtPayload(token);
-        const requesterId = payload?.sub;
-        if (!requesterId) return { ok: false, error: 'Invalid token', status: 401 };
-
-        const profileRes = await fetch(`${SUPABASE_URL}/rest/v1/profiles?select=role&id=eq.${requesterId}`, {
-          headers: {
-            apikey: SUPABASE_ANON_KEY as string,
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const profileData = await profileRes.json().catch(() => []);
-
-        if (!profileRes.ok || !Array.isArray(profileData) || !profileData[0] || profileData[0].role !== 'admin') {
-          return { ok: false, error: 'Requires admin privileges', status: 403 };
-        }
-
-        return { ok: true };
-      };
+      const validateAdmin = createValidateAdmin(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       server.middlewares.use('/api/delete-user', async (req, res, next) => {
         if (req.method !== 'POST') return next();
