@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Calendar, CheckCircle2, MapPin } from 'lucide-react';
+import { Calendar, Clock, MapPin, ArrowRight } from 'lucide-react';
 import { format, isToday } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useUpcomingEvents } from '../hooks/useUpcomingEvents';
@@ -8,24 +8,28 @@ const EventsWidget = () => {
   const { events, loading } = useUpcomingEvents();
 
   return (
-    <div className="w-full h-full rounded-3xl glass p-6 overflow-hidden flex flex-col relative group">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-          <Calendar className="text-[#2dd4bf]" size={24} /> Próximos Eventos
+    <div className="bg-white border border-line rounded-2xl shadow-sm p-5 md:p-6 flex flex-col h-full min-h-[340px]">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base font-semibold text-ink flex items-center gap-2">
+          <span className="p-1.5 rounded-lg bg-accent/10 text-accent">
+            <Calendar size={18} />
+          </span>
+          Próximos eventos
         </h2>
-        
-        <Link 
-          to="/calendar" 
-          className="flex items-center gap-2 px-4 py-1.5 rounded-xl transition-all duration-200 bg-[#2dd4bf] text-white shadow-md hover:scale-105 text-sm font-medium"
+
+        <Link
+          to="/calendar"
+          className="flex items-center gap-1 text-sm font-semibold text-accent hover:text-accent-2 transition-colors"
         >
-          Ver más
+          Ver todo
+          <ArrowRight size={16} />
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto hide-scrollbar flex flex-col gap-3">
+      <div className="flex-1 overflow-y-auto hide-scrollbar flex flex-col gap-2.5">
         {loading ? (
           <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#2dd4bf]"></div>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent"></div>
             <p className="text-sm">Cargando...</p>
           </div>
         ) : events.length === 0 ? (
@@ -34,40 +38,38 @@ const EventsWidget = () => {
           events.map((event) => {
             const dateObj = new Date(event.event_date);
             const isEventToday = isToday(dateObj);
-            
+
             const dayNumber = format(dateObj, 'dd');
             const monthName = format(dateObj, 'MMM', { locale: es }).replace('.', '');
             const dayName = format(dateObj, 'EEE', { locale: es }).replace('.', '');
             const timeString = format(dateObj, 'h:mm a');
 
             return (
-              <div 
-                key={event.id} 
-                className="bg-white/40 hover:bg-white/70 transition-all p-3 rounded-2xl flex items-center gap-4 border border-white/50 shadow-sm cursor-pointer group/item"
+              <div
+                key={event.id}
+                className="border border-line rounded-xl p-3 flex items-center gap-4 hover:bg-canvas transition-colors group"
               >
-                <div 
-                  className="flex flex-col items-center justify-center w-14 h-14 rounded-xl shrink-0 font-bold text-white shadow-md transition-colors"
-                  style={{ backgroundColor: event.color || '#2dd4bf' }} 
+                <div
+                  className="flex flex-col items-center justify-center w-12 h-12 rounded-lg shrink-0 font-bold text-white transition-colors"
+                  style={{ backgroundColor: event.color || '#f26b4a' }}
                 >
-                  <span className="text-[10px] uppercase opacity-90">
+                  <span className="text-[10px] uppercase opacity-90 leading-tight">
                     {isEventToday ? dayName : monthName}
                   </span>
-                  <span className="text-lg leading-none">
-                    {dayNumber}
-                  </span>
+                  <span className="text-base leading-none">{dayNumber}</span>
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-slate-700 truncate group-hover/item:text-[#2dd4bf] transition-colors">
+                  <h3 className="font-semibold text-ink truncate text-sm group-hover:text-accent transition-colors">
                     {event.title}
                   </h3>
                   <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
                     <span className="flex items-center gap-1">
-                      <CheckCircle2 size={12}/> {timeString}
+                      <Clock size={12} /> {timeString}
                     </span>
                     {event.location && (
                       <span className="flex items-center gap-1 truncate">
-                        <MapPin size={12}/> {event.location}
+                        <MapPin size={12} /> {event.location}
                       </span>
                     )}
                   </div>

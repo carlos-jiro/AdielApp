@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 import { getStoragePathFromPublicUrl, createValidateAdmin } from './api/lib/apiUtils'
+import { PushServiceError, sendTestPush } from './api/lib/pushService'
 
 function deleteUserDevApiPlugin(env: Record<string, string>): Plugin {
   return {
@@ -220,6 +221,36 @@ function deleteUserDevApiPlugin(env: Record<string, string>): Plugin {
   };
 }
 
+function pushTestDevApiPlugin(env: Record<string, string>): Plugin {
+  return {
+    name: 'push-test-dev-api',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/api/push-test', async (req, res, next) => {
+        if (req.method !== 'POST') return next();
+
+        const authorization = req.headers.authorization;
+        if (typeof authorization !== 'string' || !authorization.startsWith('Bearer ')) {
+          res.statusCode = 401;
+          res.setHeader('Content-Type', 'application/json');
+          return res.end(JSON.stringify({ error: 'Inicia sesión para enviar una prueba.' }));
+        }
+
+        try {
+          const result = await sendTestPush(authorization.slice('Bearer '.length).trim(), env);
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          return res.end(JSON.stringify({ ok: true, ...result }));
+        } catch (error) {
+          res.statusCode = error instanceof PushServiceError ? error.statusCode : 500;
+          res.setHeader('Content-Type', 'application/json');
+          return res.end(JSON.stringify({ error: error instanceof Error ? error.message : 'No se pudo enviar la prueba.' }));
+        }
+      });
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
@@ -228,6 +259,7 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       deleteUserDevApiPlugin(env),
+      pushTestDevApiPlugin(env),
     ],
     resolve: {
       alias: {

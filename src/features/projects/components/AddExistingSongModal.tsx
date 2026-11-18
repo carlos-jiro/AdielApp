@@ -16,8 +16,10 @@ const AddExistingSongModal = ({ isOpen, onClose, currentProjectSongs, onAddSong 
 
   if (!isOpen) return null;
 
+  const normalizedSearch = searchTerm.trim().toLocaleLowerCase();
   const availableSongs = allSongs.filter(song => {
-    const matchesSearch = song.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchableText = [song.title, song.author || '', song.tone || ''].join(' ').toLocaleLowerCase();
+    const matchesSearch = !normalizedSearch || searchableText.includes(normalizedSearch);
     const isAlreadyInProject = currentProjectSongs.some(s => s.id === song.id);
     return matchesSearch && !isAlreadyInProject;
   });
@@ -55,7 +57,7 @@ const AddExistingSongModal = ({ isOpen, onClose, currentProjectSongs, onAddSong 
             </div>
             <input 
                 type="text" 
-                placeholder="Buscar por título..." 
+                placeholder="Buscar por canto, autor o tono..."
                 className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/40 rounded-xl outline-none focus:ring-2 focus:ring-[#2dd4bf]/50 text-slate-700 placeholder-slate-400 transition-all shadow-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

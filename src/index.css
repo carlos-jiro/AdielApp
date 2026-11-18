@@ -1,22 +1,291 @@
 @import "tailwindcss";
 
+@theme {
+  --color-ink: #10282e;
+  --color-ink-2: #12343c;
+  --color-accent: #22c7d8;
+  --color-accent-2: #0891b2;
+  --color-canvas: #f4f4f6;
+  --color-line: #ececf0;
+}
+
 @layer base {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+  }
+
   body {
-    @apply min-h-screen bg-fixed;
-    /* Gradiente suave estilo Glassmorphism */
-    background: linear-gradient(135deg, #e0f2f1 0%, #e6a4f1 50%, #9cecf7 100%);
+    @apply bg-canvas;
+    min-height: 100%;
+    margin: 0;
   }
 }
 
-/* Clase de utilidad para el efecto cristal */
+html,
+body {
+  background-color: #06171e;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+.app-shell {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100svh;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  overscroll-behavior: none;
+}
+
+.mobile-nav-drawer {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.global-player-safe-bottom {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+}
+
+@media (min-width: 768px) {
+  .global-player-safe-bottom {
+    bottom: 1rem;
+  }
+}
+
+/* Clase de utilidad para el efecto cristal (se mantiene para el resto de secciones) */
 .glass {
-  @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-xl;
+  background: #0d3540;
+  border: 1px solid rgba(165, 243, 252, 0.12);
+  box-shadow: none;
+}
+
+.music-shell {
+  background: #06171e;
+}
+
+.music-panel {
+  background: #0d3540;
+  border: 1px solid rgba(165, 243, 252, 0.12);
+  box-shadow: none;
+}
+
+/* Shared dark-cyan theme for every authenticated screen and modal. */
+.app-theme {
+  --app-surface: #0d3540;
+  --app-surface-raised: #10404a;
+  --app-border: rgba(165, 243, 252, 0.14);
+  --app-text: #e8fbfd;
+  --app-muted: #a8c8ce;
+  color: var(--app-text);
+}
+
+.app-theme main {
+  color: var(--app-text);
+}
+
+.app-theme main .glass {
+  color: var(--app-text);
+  background: #0d3540 !important;
+  border-color: var(--app-border) !important;
+  box-shadow: none !important;
+}
+
+.app-theme main [class*="bg-white"],
+.app-theme main [class*="bg-slate-50"],
+.app-theme main [class*="bg-slate-100"],
+.app-theme main [class*="bg-slate-200"],
+.app-theme main [class*="bg-gray-50"],
+.app-theme main [class*="bg-gray-100"],
+.app-theme main [class*="bg-canvas"] {
+  background-color: var(--app-surface-raised) !important;
+  background-image: none !important;
+}
+
+.app-theme main [class*="bg-purple-50"],
+.app-theme main [class*="bg-purple-100"],
+.app-theme main [class*="bg-purple-200"],
+.app-theme main [class*="bg-teal-50"],
+.app-theme main [class*="bg-blue-50"],
+.app-theme main [class*="bg-indigo-50"],
+.app-theme main [class*="bg-pink-50"],
+.app-theme main [class*="bg-pink-100"],
+.app-theme main [class*="bg-red-50"],
+.app-theme main [class*="bg-rose-50"],
+.app-theme main [class*="bg-amber-50"],
+.app-theme main [class*="bg-emerald-50"],
+.app-theme main [class*="bg-green-50"],
+.app-theme main [class*="bg-yellow-50"] {
+  background-color: rgba(34, 199, 216, 0.13) !important;
+}
+
+.app-theme main [class*="text-slate-900"],
+.app-theme main [class*="text-slate-800"],
+.app-theme main [class*="text-slate-700"],
+.app-theme main [class*="text-slate-600"],
+.app-theme main [class*="text-gray-900"],
+.app-theme main [class*="text-gray-800"],
+.app-theme main [class*="text-gray-700"],
+.app-theme main [class*="text-gray-600"],
+.app-theme main [class*="text-ink"] {
+  color: var(--app-text) !important;
+}
+
+.app-theme main [class*="text-slate-500"],
+.app-theme main [class*="text-slate-400"],
+.app-theme main [class*="text-slate-300"],
+.app-theme main [class*="text-gray-500"],
+.app-theme main [class*="text-gray-400"] {
+  color: var(--app-muted) !important;
+}
+
+.app-theme main [class*="text-purple-"],
+.app-theme main [class*="text-teal-"],
+.app-theme main [class*="text-blue-600"],
+.app-theme main [class*="text-indigo-"],
+.app-theme main [class*="text-[#0f766e]"],
+.app-theme main [class*="text-[#0d9488]"] {
+  color: #67e8f9 !important;
+}
+
+.app-theme main [class*="border-slate-"],
+.app-theme main [class*="border-gray-"],
+.app-theme main [class*="border-white/"],
+.app-theme main [class*="border-line"] {
+  border-color: var(--app-border) !important;
+}
+
+.app-theme main [class*="border-purple-"],
+.app-theme main [class*="ring-purple-"] {
+  border-color: rgba(34, 199, 216, 0.55) !important;
+  --tw-ring-color: rgba(34, 199, 216, 0.55) !important;
+}
+
+.app-theme main [class~="bg-[#2dd4bf]"],
+.app-theme main [class*="bg-[#2dd4bf]/"] {
+  background-color: #0891b2 !important;
+}
+
+.app-theme main [class*="bg-[#2dd4bf]/"] {
+  background-color: rgba(34, 199, 216, 0.13) !important;
+}
+
+.app-theme main [class~="hover:bg-[#26bba8]"]:hover,
+.app-theme main [class~="hover:bg-[#25b09f]"]:hover {
+  background-color: #22c7d8 !important;
+}
+
+.app-theme main [class*="text-[#2dd4bf]"],
+.app-theme main [class*="border-[#2dd4bf]"] {
+  color: #67e8f9 !important;
+  border-color: #22c7d8 !important;
+}
+
+.app-theme main [class*="bg-slate-800"] {
+  background-color: #0e7490 !important;
+}
+
+.app-theme main [class*="bg-emerald-600"] {
+  background-color: #0e7490 !important;
+}
+
+.app-theme main [class*="hover:bg-slate-700"]:hover {
+  background-color: #155e75 !important;
+}
+
+.app-theme main [class*="hover:bg-emerald-700"]:hover {
+  background-color: #155e75 !important;
+}
+
+.app-theme main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.app-theme main textarea,
+.app-theme main select {
+  color-scheme: dark;
+  color: var(--app-text) !important;
+  background-color: #082a33 !important;
+  border-color: var(--app-border) !important;
+}
+
+.app-theme main input::placeholder,
+.app-theme main textarea::placeholder {
+  color: rgba(202, 231, 235, 0.45) !important;
+}
+
+.app-theme .custom-scrollbar {
+  scrollbar-color: rgba(165, 243, 252, 0.25) transparent;
+}
+
+.app-theme .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(165, 243, 252, 0.2);
+}
+
+.app-theme .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(165, 243, 252, 0.35);
+}
+
+/* Compact, squared-off component language across the signed-in app. */
+.app-theme [class*="rounded-[22px]"],
+.app-theme [class*="rounded-[20px]"],
+.app-theme [class*="rounded-3xl"],
+.app-theme [class*="rounded-2xl"],
+.app-theme [class*="rounded-xl"] {
+  border-radius: 3px !important;
+}
+
+.app-theme [class*="rounded-lg"] {
+  border-radius: 3px !important;
+}
+
+.app-theme [class*="rounded-md"] {
+  border-radius: 3px !important;
+}
+
+.app-theme .glass,
+.app-theme .music-panel {
+  border-radius: 4px !important;
+  box-shadow: none !important;
+}
+
+.app-theme main .music-panel {
+  padding: 16px !important;
+}
+
+.app-theme main .glass[class~="p-8"] {
+  padding: 16px !important;
+}
+
+.app-theme main .glass[class~="p-6"] {
+  padding: 14px !important;
+}
+
+.app-theme main .glass[class~="p-5"] {
+  padding: 12px !important;
+}
+
+.app-theme [class*="rounded-full"]:not([class*="overflow-hidden"]):not([class~="h-1.5"]):not([class~="w-1.5"]):not([class~="h-2"]):not([class~="w-2"]):not([class~="h-8"]):not([class~="w-8"]):not([class~="h-9"]):not([class~="w-9"]) {
+  border-radius: 3px !important;
+}
+
+/* Oculta el scrollbar manteniendo el scroll */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Minimal custom scrollbar: transparent track, thin rounded thumb */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0,0,0,0.25) transparent;
+  scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -27,17 +296,20 @@
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(0,0,0,0.22);
+  background-color: rgba(0, 0, 0, 0.22);
   border-radius: 9999px;
-  border: 2px solid transparent; /* keep thumb narrow */
+  border: 2px solid transparent;
   background-clip: padding-box;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0,0,0,0.32);
+  background-color: rgba(0, 0, 0, 0.32);
 }
 
-/* Optional: make scrollbar lighter on very dark backgrounds */
 @media (prefers-color-scheme: dark) {
-  .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.12); }
-  .custom-scrollbar { scrollbar-color: rgba(255,255,255,0.12) transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+  .custom-scrollbar {
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  }
 }

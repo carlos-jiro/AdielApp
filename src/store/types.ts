@@ -19,12 +19,13 @@ export interface MemberProfile {
 }
 
 export interface Song {
-  author: string;
-  tone: string;
+  author: string | null;
+  tone: string | null;
+  lyrics_json?: { text: string } | null;
   id: string;
-  project_id: string;
+  project_id: string | null;
   title: string;
-  order_index: number;
+  order_index: number | null;
 }
 
 export interface AttendanceStats {

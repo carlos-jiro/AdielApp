@@ -66,13 +66,19 @@ export const CalendarView = () => {
       
       {/* Estilos Override para BigCalendar */}
       <style>{`
-        .rbc-calendar { font-family: inherit; }
-        .rbc-month-view { border: none; }
-        .rbc-header { border-bottom: 1px solid #e5e7eb; padding: 12px 0; font-size: 0.75rem; font-weight: 600; color: #374151; text-transform: uppercase; }
-        .rbc-day-bg { border-left: 1px solid #e5e7eb; }
+        .rbc-calendar { font-family: inherit; color: #e8fbfd; }
+        .rbc-month-view, .rbc-time-view, .rbc-agenda-view { border: 1px solid rgba(165, 243, 252, 0.13); border-radius: 14px; overflow: hidden; }
+        .rbc-header { border-bottom: 1px solid rgba(165, 243, 252, 0.13); padding: 12px 0; font-size: 0.75rem; font-weight: 600; color: #a8c8ce; text-transform: uppercase; }
+        .rbc-day-bg { border-left: 1px solid rgba(165, 243, 252, 0.1); }
+        .rbc-month-row + .rbc-month-row { border-top: 1px solid rgba(165, 243, 252, 0.1); }
         .rbc-off-range-bg { background-color: transparent; }
-        .rbc-date-cell { padding: 8px; font-size: 0.875rem; font-weight: 500; color: #1f2937; }
-        .rbc-today { background-color: #f0fdfa; }
+        .rbc-off-range { color: rgba(168, 200, 206, 0.42); }
+        .rbc-date-cell { padding: 8px; font-size: 0.875rem; font-weight: 500; color: #e8fbfd; }
+        .rbc-today { background-color: rgba(34, 199, 216, 0.1); }
+        .rbc-agenda-view table.rbc-agenda-table { border: 1px solid rgba(165, 243, 252, 0.13); color: #e8fbfd; }
+        .rbc-agenda-view table.rbc-agenda-table tbody > tr > td { border-top: 1px solid rgba(165, 243, 252, 0.1); }
+        .rbc-agenda-view table.rbc-agenda-table thead > tr > th { border-bottom: 1px solid rgba(165, 243, 252, 0.13); color: #a8c8ce; }
+        .rbc-show-more { color: #67e8f9; }
         .rbc-event { padding: 0 !important; }
         .rbc-row-segment { padding: 0 2px; }
       `}</style>
@@ -116,7 +122,7 @@ export const CalendarView = () => {
         {/* FAB (Floating Action Button) */}
         <button 
           onClick={handleOpenNewEvent} 
-          className="absolute bottom-6 right-4 md:bottom-8 md:right-8 z-50 bg-[#2dd4bf] hover:bg-teal-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center"
+          className="absolute bottom-6 right-4 md:bottom-8 md:right-8 z-50 bg-cyan-500 hover:bg-cyan-400 text-[#062a33] p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center"
         >
           <Plus size={24} />
         </button>

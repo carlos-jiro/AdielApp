@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { compressImage } from '../../lib/imageUtils';
 import { useAppStore } from '../../store/useAppStore'; 
-import { gradients } from '../../lib/gradients';
 // Icons
 import { 
   Building2, 
@@ -19,6 +18,9 @@ import {
   Lock, 
   Save, 
   User, 
+  BellRing,
+  CheckCircle2,
+  Smartphone,
 } from 'lucide-react';
 
 // --- INTERFACES ---
@@ -30,6 +32,15 @@ interface GroupInfo {
 }
 
 const GROUP_ROLES = ["Director", "Secretario", "Tesorera", "Coord. Eventos", "Miembro"];
+
+const base64UrlToUint8Array = (value: string) => {
+  const padding = '='.repeat((4 - value.length % 4) % 4);
+  const base64 = (value + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const decoded = window.atob(base64);
+  const bytes = new Uint8Array(decoded.length);
+  for (let index = 0; index < decoded.length; index += 1) bytes[index] = decoded.charCodeAt(index);
+  return bytes;
+};
 
 const Settings = () => {
   // --- ESTADOS ---
@@ -58,16 +69,20 @@ const Settings = () => {
   const [savingGroup, setSavingGroup] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
-  // Theme / Gradients
-  const selectedGradient = useAppStore((s) => s.gradientKey);
-  const setGradient = useAppStore((s) => s.setGradient);
-
   // --- NUEVO ESTADO: CONTRASEÑA ---
   const [passwordForm, setPasswordForm] = useState({
     newPassword: '',
     confirmPassword: ''
   });
   const [updatingPassword, setUpdatingPassword] = useState(false);
+
+  // Push notifications are enabled by the user, per browser/device.
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushPermission, setPushPermission] = useState<NotificationPermission>('default');
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushNeedsHomeScreen, setPushNeedsHomeScreen] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushMessage, setPushMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
 
   // Referencias Inputs Archivos
   const fileInputRef = useRef<HTMLInputElement>(null); 
@@ -76,6 +91,135 @@ const Settings = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const checkPushSupport = async () => {
+      const iosDevice = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const standalone = window.matchMedia('(display-mode: standalone)').matches
+        || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+      const needsHomeScreen = iosDevice && !standalone;
+      const supported = window.isSecureContext
+        && 'serviceWorker' in navigator
+        && 'PushManager' in window
+        && 'Notification' in window;
+
+      if (!isMounted) return;
+      setPushSupported(supported);
+      setPushNeedsHomeScreen(needsHomeScreen);
+      if (!supported) return;
+
+      setPushPermission(Notification.permission);
+      if (Notification.permission !== 'granted') return;
+
+      try {
+        const registration = await navigator.serviceWorker.getRegistration('/');
+        const subscription = await registration?.pushManager.getSubscription();
+        if (isMounted) setPushEnabled(Boolean(subscription));
+      } catch {
+        if (isMounted) setPushEnabled(false);
+      }
+    };
+
+    void checkPushSupport();
+    return () => { isMounted = false; };
+  }, []);
+
+  const handleEnablePush = async () => {
+    setPushMessage(null);
+    const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+
+    if (!pushSupported) {
+      setPushMessage({ type: 'error', text: 'Este navegador no permite notificaciones push. Actualiza Safari/Chrome y usa HTTPS.' });
+      return;
+    }
+    if (pushNeedsHomeScreen) {
+      setPushMessage({ type: 'info', text: 'En iPhone/iPad, primero usa Compartir → Añadir a pantalla de inicio y abre Adiel desde su icono.' });
+      return;
+    }
+    if (!vapidPublicKey) {
+      setPushMessage({ type: 'error', text: 'Falta configurar VITE_VAPID_PUBLIC_KEY para esta instalación.' });
+      return;
+    }
+
+    setPushBusy(true);
+    try {
+      // Must be called directly from this user gesture, especially on iOS.
+      const permission = Notification.permission === 'default'
+        ? await Notification.requestPermission()
+        : Notification.permission;
+      setPushPermission(permission);
+      if (permission !== 'granted') {
+        throw new Error(permission === 'denied'
+          ? 'Las notificaciones están bloqueadas. Permítelas en los ajustes del navegador o de iOS.'
+          : 'No se concedió permiso para mostrar notificaciones.');
+      }
+
+      const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      await navigator.serviceWorker.ready;
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: base64UrlToUint8Array(vapidPublicKey) as BufferSource,
+        });
+      }
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error('Tu sesión expiró. Inicia sesión de nuevo.');
+      const { error: saveError } = await supabase.from('push_subscriptions').upsert({
+        user_id: user.id,
+        endpoint: subscription.endpoint,
+        subscription: subscription.toJSON(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,endpoint' });
+      if (saveError) throw saveError;
+
+      setPushEnabled(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No se pudo recuperar la sesión para enviar la prueba.');
+
+      const response = await fetch('/api/push-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result?.error || 'Se activaron las notificaciones, pero no se pudo enviar la prueba.');
+      setPushMessage({ type: 'success', text: '¡Listo! Enviamos una notificación de prueba a este dispositivo.' });
+    } catch (error) {
+      setPushMessage({ type: 'error', text: error instanceof Error ? error.message : 'No se pudo activar el envío de notificaciones.' });
+    } finally {
+      setPushBusy(false);
+    }
+  };
+
+  const handleDisablePush = async () => {
+    setPushBusy(true);
+    setPushMessage(null);
+    try {
+      const registration = await navigator.serviceWorker.getRegistration('/');
+      const subscription = await registration?.pushManager.getSubscription();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error('Inicia sesión de nuevo para administrar este dispositivo.');
+
+      if (subscription) {
+        const { error } = await supabase.from('push_subscriptions')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('endpoint', subscription.endpoint);
+        if (error) throw error;
+        await subscription.unsubscribe();
+      }
+
+      setPushEnabled(false);
+      setPushMessage({ type: 'info', text: 'Las notificaciones quedaron desactivadas en este dispositivo.' });
+    } catch (error) {
+      setPushMessage({ type: 'error', text: error instanceof Error ? error.message : 'No se pudo desactivar este dispositivo.' });
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -250,7 +394,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 max-w-6xl mx-auto p-6 h-full overflow-auto custom-scrollbar">
+    <div className="mx-auto h-full min-h-0 max-w-6xl space-y-6 overflow-y-auto px-4 pb-0 pt-4 custom-scrollbar animate-in fade-in duration-700 md:space-y-8 md:p-6">
       
       {/* --- SECCIÓN 0: IDENTIDAD DEL GRUPO --- */}
       <div className="glass rounded-3xl p-8 border border-white/50 relative overflow-hidden">
@@ -496,34 +640,72 @@ const Settings = () => {
           </div>
         </form>
       </div>
-      {/* --- SECCIÓN 3: GRADIENTES --- */}
+
+      {/* --- SECCIÓN 3: NOTIFICACIONES PUSH --- */}
       <div className="glass rounded-3xl p-8 border border-white/50 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-pink-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-3 bg-pink-100 rounded-2xl text-pink-600">
-            <Loader2 size={24} />
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 border border-cyan-200/10 bg-cyan-300/[0.08] p-3 text-cyan-200">
+              {pushEnabled ? <CheckCircle2 size={22} /> : <BellRing size={22} />}
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-xl font-bold text-white">Notificaciones</h2>
+              <p className="mt-1 max-w-xl text-sm text-cyan-50/55">
+                Recibe avisos del coro en este dispositivo. La prueba confirma que la suscripción push está funcionando.
+              </p>
+              {pushEnabled && <p className="mt-2 text-xs font-semibold text-emerald-200">Activas en este dispositivo</p>}
+            </div>
+          </div>
+
+          <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
+            <button
+              onClick={() => void handleEnablePush()}
+              disabled={pushBusy || !pushSupported || pushNeedsHomeScreen || pushPermission === 'denied'}
+              className="inline-flex items-center justify-center gap-2 bg-cyan-300 px-4 py-2.5 text-xs font-bold text-[#06252b] transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-40 sm:text-sm"
+            >
+              {pushBusy ? <Loader2 size={16} className="animate-spin" /> : pushEnabled ? <BellRing size={16} /> : <BellRing size={16} />}
+              {pushBusy ? 'Enviando…' : pushEnabled ? 'Enviar prueba' : 'Permitir y enviar prueba'}
+            </button>
+            {pushEnabled && (
+              <button onClick={() => void handleDisablePush()} disabled={pushBusy} className="border border-cyan-100/10 px-3 py-2.5 text-xs font-semibold text-cyan-50/65 hover:bg-white/[0.05] hover:text-white disabled:opacity-40">
+                Desactivar aquí
+              </button>
+            )}
+          </div>
+        </div>
+
+        {pushNeedsHomeScreen && (
+          <div className="mt-4 flex items-start gap-2 border border-cyan-100/10 bg-white/[0.025] p-3 text-xs leading-relaxed text-cyan-50/65">
+            <Smartphone size={16} className="mt-0.5 shrink-0 text-cyan-200" />
+            <span>En iPhone/iPad, agrega Adiel a la pantalla de inicio desde Safari (Compartir → Añadir a pantalla de inicio), ábrelo desde el icono y vuelve aquí para activar las notificaciones. Requiere iOS/iPadOS 16.4 o posterior.</span>
+          </div>
+        )}
+        {!pushSupported && !pushNeedsHomeScreen && (
+          <p className="mt-4 border border-amber-200/10 bg-amber-300/[0.06] p-3 text-xs text-amber-100/70">Este navegador no ofrece Push API en este contexto. Usa HTTPS y un navegador compatible.</p>
+        )}
+        {pushPermission === 'denied' && (
+          <p className="mt-4 border border-amber-200/10 bg-amber-300/[0.06] p-3 text-xs text-amber-100/70">El permiso está bloqueado. Cambia la autorización de notificaciones en la configuración del navegador o del sistema.</p>
+        )}
+        {pushMessage && (
+          <p role="status" className={`mt-4 border p-3 text-xs ${pushMessage.type === 'success' ? 'border-emerald-200/15 bg-emerald-300/[0.06] text-emerald-100/80' : pushMessage.type === 'error' ? 'border-rose-200/15 bg-rose-300/[0.06] text-rose-100/80' : 'border-cyan-100/10 bg-white/[0.025] text-cyan-50/65'}`}>
+            {pushMessage.text}
+          </p>
+        )}
+      </div>
+
+      {/* --- SECCIÓN 3: APARIENCIA --- */}
+      <div className="glass rounded-3xl p-8 border border-white/50 relative overflow-hidden">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+          <div className="flex h-20 w-full shrink-0 items-end gap-1 overflow-hidden rounded-2xl border border-cyan-100/10 bg-gradient-to-br from-[#071d25] via-[#0b5362] to-[#22c7d8] p-3 sm:w-48">
+            {[18, 31, 22, 39, 26, 44, 30, 19, 36, 24, 42, 17].map((height, index) => (
+              <span key={index} className="w-2 rounded-full bg-cyan-50/65" style={{ height }} />
+            ))}
           </div>
           <div>
-              <h2 className="text-2xl font-bold text-slate-800">Apariencia</h2>
-              <p className="text-slate-500 text-sm">Elige un fondo degradado para la aplicación</p>
+            <h2 className="text-xl font-bold text-slate-800">Apariencia</h2>
+            <p className="mt-1 text-sm font-semibold text-cyan-300">Tema cian profundo</p>
+            <p className="mt-1 max-w-xl text-sm text-slate-500">La aplicación usa una paleta oscura cian, con superficies profundas y acentos aqua para mantener una experiencia uniforme.</p>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {gradients.map(g => (
-            <button
-              key={g.key}
-              onClick={() => setGradient(g.key)}
-              className={`rounded-2xl p-3 h-28 flex flex-col items-start justify-between border-2 transition-all overflow-hidden text-left ${selectedGradient === g.key ? 'ring-4 ring-offset-2 ring-indigo-300' : 'border-transparent'}`}
-            >
-              <div className="w-full h-16 rounded-lg shadow-inner" style={{ background: g.css }} />
-              <div className="text-sm font-medium text-slate-700 mt-2">{g.label}</div>
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-4 flex justify-end">
-          <button onClick={() => setGradient('pink-blue')} className="text-sm text-slate-600 hover:underline">Restaurar predeterminado</button>
         </div>
       </div>
 

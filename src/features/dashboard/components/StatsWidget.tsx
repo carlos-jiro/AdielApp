@@ -1,55 +1,41 @@
-import { TrendingUp, Users, Music } from 'lucide-react';
-import { useDashboardStats } from '../hooks/useDashboardStats'; 
+import { TrendingUp, UsersRound, Music2 } from 'lucide-react';
+import { useDashboardStats } from '../hooks/useDashboardStats';
 
 const StatsWidget = () => {
   const { stats } = useDashboardStats();
 
   return (
-    <div className="w-full h-full rounded-3xl glass p-6 overflow-hidden flex flex-col">
-        <h2 className="text-lg md:text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <TrendingUp className="text-blue-500" size={24} /> Rendimiento
-        </h2>
-        
-        <div className="flex-1 grid grid-cols-2 gap-4">
-            {/* Stat Card 1: Asistencia */}
-            <div className="bg-white/50 rounded-2xl p-4 flex flex-col justify-between border border-white/60 shadow-sm transition-all hover:bg-white/60">
-                <div className="flex justify-between items-start">
-                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg"><Users size={20}/></div>
-                    <span className="text-xs font-bold text-green-500 bg-green-100 px-1.5 py-0.5 rounded">
-                        Global
-                    </span>
-                </div>
-                <div>
-                    <h3 className="text-4xl md:text-5xl font-black text-slate-700 tracking-tight">{stats.percentage}%</h3>
-                    <p className="text-xs md:text-sm text-slate-500 font-medium mt-1">Asistencia Histórica</p>
-                </div>
-                <div className="w-full h-1.5 bg-slate-200 rounded-full mt-2 overflow-hidden">
-                    <div 
-                        className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out" 
-                        style={{ width: `${stats.percentage}%` }}
-                    ></div>
-                </div>
-            </div>
-
-            {/* Stat Card 2: Repertorio */}
-            <div className="bg-white/50 rounded-2xl p-4 flex flex-col justify-between border border-white/60 shadow-sm transition-all hover:bg-white/60">
-                <div className="flex justify-between items-start">
-                    <div className="p-2 bg-violet-100 text-violet-600 rounded-lg"><Music size={20}/></div>
-                    <span className="text-xs font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">Total</span>
-                </div>
-                <div>
-                    <h3 className="text-4xl md:text-5xl font-black text-slate-700 tracking-tight">{stats.totalSongs}</h3>
-                    <p className="text-xs md:text-sm text-slate-500 font-medium mt-1">Cantos Disponibles</p>
-                </div>
-                <div className="w-full h-1.5 bg-slate-200 rounded-full mt-2 overflow-hidden">
-                    <div 
-                        className="h-full bg-violet-500 rounded-full transition-all duration-1000 ease-out" 
-                        style={{ width: `${Math.min((stats.totalSongs / 200) * 100, 100)}%` }}
-                    ></div>
-                </div>
-            </div>
+    <section className="music-panel rounded-[20px] p-4 md:p-5">
+      <div className="mb-4 flex items-center gap-2.5">
+        <span className="rounded-lg bg-cyan-400/10 p-1.5 text-cyan-200"><TrendingUp size={16} /></span>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200/45">Tu comunidad</p>
+          <h3 className="text-sm font-bold text-white">Resumen</h3>
         </div>
-    </div>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <div className="mb-1.5 flex items-end justify-between gap-2">
+            <span className="flex items-center gap-2 text-xs text-cyan-50/65"><UsersRound size={14} className="text-cyan-200" /> Asistencia histórica</span>
+            <span className="text-lg font-bold leading-none text-white">{stats.percentage}<span className="ml-0.5 text-xs text-cyan-50/45">%</span></span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-black/25">
+            <div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-300 transition-all duration-700" style={{ width: `${stats.percentage}%` }} />
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-1.5 flex items-end justify-between gap-2">
+            <span className="flex items-center gap-2 text-xs text-cyan-50/65"><Music2 size={14} className="text-cyan-200" /> Cantos disponibles</span>
+            <span className="text-lg font-bold leading-none text-white">{stats.totalSongs}</span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-black/25">
+            <div className="h-full rounded-full bg-gradient-to-r from-teal-400 to-cyan-300 transition-all duration-700" style={{ width: `${Math.min((stats.totalSongs / 200) * 100, 100)}%` }} />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };
 
