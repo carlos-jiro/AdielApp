@@ -118,7 +118,7 @@ const MembersView = () => {
 
   return (
     // CONTENEDOR PRINCIPAL
-    <div className="w-full pl-4 pr-8 pb-4 h-[calc(100vh-12rem)] md:h-[calc(100vh-7rem)] animate-in fade-in duration-700">
+    <div className="h-full min-h-0 w-full overflow-hidden pl-4 pr-8 pb-4 animate-in fade-in duration-700">
       
       {/* GRID LAYOUT (Invertido: Izquierda 4 cols, Derecha 8 cols) */}
       <div className="w-full h-full grid grid-cols-1 md:grid-cols-12 gap-6">

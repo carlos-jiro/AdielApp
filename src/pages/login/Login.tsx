@@ -1,81 +1,169 @@
 import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, LockKeyhole, Mail } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
-import { useNavigate } from 'react-router-dom';
+import AuthLayout from '../../components/AuthLayout';
+
+type LoginMode = 'login' | 'register' | 'recover';
+type Notice = { type: 'success' | 'error'; text: string } | null;
 
 const Login = () => {
-  const [isRegistering, setIsRegistering] = useState(false); // Estado para alternar
+  const [searchParams] = useSearchParams();
+  const [mode, setMode] = useState<LoginMode>(() => searchParams.get('mode') === 'recovery' ? 'recover' : 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState<Notice>(null);
   const navigate = useNavigate();
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setLoading(true);
+    setNotice(null);
 
-    if (isRegistering) {
-      // Lógica de Registro
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) alert(error.message);
-      else alert('¡Registro exitoso! Ya puedes iniciar sesión.');
-    } else {
-      // Lógica de Login
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) alert(error.message);
-      else navigate('/');
+    try {
+      if (mode === 'recover') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+
+        // Use the same response for known and unknown addresses to avoid exposing account membership.
+        setNotice({
+          type: 'success',
+          text: 'Si el correo está registrado, recibirás un enlace para crear una nueva contraseña. Revisa también tu carpeta de spam.',
+        });
+        return;
+      }
+
+      if (mode === 'register') {
+        const { error } = await supabase.auth.signUp({ email: email.trim(), password });
+        if (error) throw error;
+        setNotice({
+          type: 'success',
+          text: 'Tu registro se procesó. Si se requiere confirmar el correo, te enviaremos un mensaje con los siguientes pasos.',
+        });
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) throw error;
+      navigate('/', { replace: true });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Ocurrió un error. Intenta de nuevo.';
+      setNotice({ type: 'error', text: message });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
+  const changeMode = (nextMode: LoginMode) => {
+    setMode(nextMode);
+    setNotice(null);
+  };
+
+  const isRecovering = mode === 'recover';
+
   return (
-    <div className="app-theme music-shell min-h-screen flex items-center justify-center p-6 bg-fixed text-white">
-      <div className="glass max-w-md w-full p-10 rounded-3xl space-y-6 shadow-2xl">
-        <div className="text-center">
-          <h1 className="text-4xl font-black text-white tracking-tighter">CoroPro</h1>
-          <p className="text-cyan-100/65 mt-2 font-medium">
-            {isRegistering ? 'Crea tu cuenta de integrante' : 'Bienvenido de nuevo'}
+    <AuthLayout>
+      <div className="auth-card">
+        <div className="mb-7">
+          {isRecovering ? (
+            <button
+              type="button"
+              onClick={() => changeMode('login')}
+              className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-cyan-100/70 transition hover:text-white"
+            >
+              <ArrowLeft size={16} /> Volver al inicio de sesión
+            </button>
+          ) : null}
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-cyan-300">
+            {mode === 'register' ? 'Únete a la comunidad' : isRecovering ? 'Recupera tu acceso' : 'Qué alegría tenerte aquí'}
+          </p>
+          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            {mode === 'register' ? 'Crea tu cuenta' : isRecovering ? '¿Olvidaste tu contraseña?' : 'Bienvenido de nuevo'}
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-cyan-50/60">
+            {mode === 'register'
+              ? 'Crea tu acceso al espacio musical de Adiel.'
+              : isRecovering
+                ? 'Escribe el correo de tu cuenta y te enviaremos un enlace seguro para elegir una nueva contraseña.'
+                : 'Inicia sesión para continuar compartiendo música y fe.'}
           </p>
         </div>
 
-        <form onSubmit={handleAuth} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-cyan-50/70 ml-1">CORREO ELECTRÓNICO</label>
-            <input 
-              type="email" 
-              required
-              className="w-full bg-[#082a33] text-white placeholder:text-cyan-100/35 p-3 rounded-xl border border-cyan-100/15 outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
-              value={email} 
-              onChange={e => setEmail(e.target.value)}
-              placeholder="tu@correo.com"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-cyan-50/70 ml-1">CONTRASEÑA</label>
-            <input 
-              type="password" 
-              required
-              className="w-full bg-[#082a33] text-white placeholder:text-cyan-100/35 p-3 rounded-xl border border-cyan-100/15 outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
-              value={password} 
-              onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <label htmlFor="login-email" className="text-xs font-bold uppercase tracking-wider text-cyan-50/75">Correo electrónico</label>
+            <div className="auth-input-wrap">
+              <Mail size={18} aria-hidden="true" />
+              <input
+                id="login-email"
+                type="email"
+                autoComplete="email"
+                required
+                className="auth-input"
+                value={email}
+                onChange={event => setEmail(event.target.value)}
+                placeholder="tu@correo.com"
+              />
+            </div>
           </div>
 
-          <button className="w-full bg-cyan-500 text-[#062a33] font-bold py-4 rounded-2xl hover:bg-cyan-300 transition-all shadow-lg shadow-cyan-950/30 active:scale-95">
-            {loading ? 'Procesando...' : (isRegistering ? 'Registrarme' : 'Entrar')}
+          {!isRecovering && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <label htmlFor="login-password" className="text-xs font-bold uppercase tracking-wider text-cyan-50/75">Contraseña</label>
+                {mode === 'login' && (
+                  <button type="button" onClick={() => changeMode('recover')} className="text-xs font-semibold text-cyan-300 transition hover:text-cyan-100">
+                    ¿La olvidaste?
+                  </button>
+                )}
+              </div>
+              <div className="auth-input-wrap">
+                <LockKeyhole size={18} aria-hidden="true" />
+                <input
+                  id="login-password"
+                  type="password"
+                  autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+                  minLength={mode === 'register' ? 6 : undefined}
+                  required
+                  className="auth-input"
+                  value={password}
+                  onChange={event => setPassword(event.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                />
+              </div>
+            </div>
+          )}
+
+          {notice && (
+            <p role={notice.type === 'error' ? 'alert' : 'status'} className={`auth-notice ${notice.type === 'error' ? 'auth-notice-error' : 'auth-notice-success'}`}>
+              {notice.text}
+            </p>
+          )}
+
+          <button type="submit" disabled={loading} className="auth-submit">
+            {loading ? 'Un momento…' : mode === 'register' ? 'Crear cuenta' : isRecovering ? 'Enviar enlace' : 'Iniciar sesión'}
           </button>
         </form>
 
-        <div className="text-center border-t border-cyan-100/15 pt-6">
-          <button 
-            onClick={() => setIsRegistering(!isRegistering)}
-            className="text-sm font-bold text-cyan-50/75 hover:text-cyan-200 transition-colors"
-          >
-            {isRegistering ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate aquí'}
-          </button>
-        </div>
+        {!isRecovering ? (
+          <div className="mt-6 border-t border-cyan-100/10 pt-5 text-center">
+            <p className="text-sm text-cyan-50/55">
+              {mode === 'register' ? '¿Ya tienes una cuenta?' : '¿Aún no tienes una cuenta?'}{' '}
+              <button
+                type="button"
+                onClick={() => changeMode(mode === 'register' ? 'login' : 'register')}
+                className="font-bold text-cyan-300 transition hover:text-white"
+              >
+                {mode === 'register' ? 'Inicia sesión' : 'Regístrate'}
+              </button>
+            </p>
+          </div>
+        ) : null}
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

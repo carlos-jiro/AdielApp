@@ -62,7 +62,7 @@ export const CalendarView = () => {
   };
 
   return (
-    <div className="w-full px-3 pb-4 md:pl-4 md:pr-8 h-[calc(100vh-8rem)] md:h-[calc(100vh-7rem)] animate-in fade-in duration-500">
+    <div className="h-full min-h-0 w-full px-3 pb-4 md:pl-4 md:pr-8 animate-in fade-in duration-500">
       
       {/* Estilos Override para BigCalendar */}
       <style>{`

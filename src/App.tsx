@@ -14,6 +14,7 @@ import Projects from '@/pages/projects/Projects';
 import Settings from '@/pages/settings/Settings';
 import Members from '@/pages/members/Members';
 import Login from '@/pages/login/Login';
+import ResetPassword from '@/pages/login/ResetPassword';
 
 // Components
 import Navbar from '@/components/layout/Navbar';
@@ -22,9 +23,9 @@ import GlobalPlayer from '@/components/global/GlobalPlayer';
 
 function AuthenticatedApp() {
   const location = useLocation();
-  const isSongDetail = location.pathname.startsWith('/song/');
   const isDashboard = location.pathname === '/';
-  const isSettings = location.pathname === '/settings';
+  const activeTrack = useAppStore((state) => state.activeTrack);
+  const reservesPlayerSpace = activeTrack && ['/calendar', '/tutorials', '/members'].includes(location.pathname);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -39,11 +40,11 @@ function AuthenticatedApp() {
   }, []);
 
   return (
-    <div className="app-shell app-theme music-shell flex overflow-hidden">
+    <div className={`app-shell app-theme music-shell flex ${isDashboard ? 'overflow-visible' : 'overflow-hidden'}`}>
       <Navbar isMobileOpen={isMobileMenuOpen} onMobileOpenChange={setIsMobileMenuOpen} />
-      <main className="flex flex-col flex-1 w-full ml-0 lg:ml-56 transition-all duration-300 h-full overflow-hidden min-h-0">
-        <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
-        <div className={`flex-1 min-h-0 overflow-hidden ${isSongDetail || isDashboard || isSettings || location.pathname === '/projects' ? 'pb-0' : 'pb-24 md:pb-0'}`}>
+      <main className={`flex flex-col flex-1 w-full ml-0 lg:ml-56 transition-all duration-300 h-full min-h-0 ${isDashboard ? 'overflow-visible' : 'overflow-hidden'}`}>
+        <Header isMobileMenuOpen={isMobileMenuOpen} onMenuClick={() => setIsMobileMenuOpen(true)} />
+        <div className={`flex-1 min-h-0 ${isDashboard ? 'overflow-visible' : 'overflow-hidden'} ${reservesPlayerSpace ? 'pb-24 md:pb-0' : 'pb-0'}`}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/projects" element={<Projects />} />
@@ -56,6 +57,7 @@ function AuthenticatedApp() {
           </Routes>
         </div>
       </main>
+      <div className="app-safe-area-cover" aria-hidden="true" />
       <GlobalPlayer />
     </div>
   );
@@ -119,14 +121,17 @@ function App() {
 
   return (
     <Router>
-      {!session ? (
-        <Routes>
+      <Routes>
+        <Route path="/reset-password" element={<ResetPassword />} />
+        {!session ? (
+          <>
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<Navigate to="/login" />} />
-        </Routes>
-      ) : (
-        <AuthenticatedApp />
-      )}
+          </>
+        ) : (
+          <Route path="*" element={<AuthenticatedApp />} />
+        )}
+      </Routes>
     </Router>
   );
 }

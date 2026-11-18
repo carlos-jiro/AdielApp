@@ -56,12 +56,12 @@ const Tutorials = () => {
     selectedFilter === "Todos" ? true : video.category === selectedFilter
   );
 
-  if (loading) return <div className="p-20 text-center animate-pulse text-slate-400">Cargando videos...</div>;
+  if (loading) return <div className="flex h-full min-h-0 items-center justify-center p-6 text-center animate-pulse text-slate-400">Cargando videos...</div>;
 
   return (
     // CAMBIO 1: Padding lateral unificado en móvil (px-4) y específico en desktop (md:pl-4 md:pr-8)
     // Altura calculada ajustada para móvil
-    <div className="relative w-full px-4 md:pl-4 md:pr-8 pb-4 h-[calc(100vh-8rem)] md:h-[calc(100vh-7rem)] animate-in fade-in duration-500">
+    <div className="relative h-full min-h-0 w-full px-4 pb-4 md:pl-4 md:pr-8 animate-in fade-in duration-500">
       
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }

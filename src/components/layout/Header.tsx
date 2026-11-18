@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { Search, Bell, LayoutDashboard, Music, Calendar, Youtube, Users, Settings, FileText, Menu, X } from 'lucide-react';
 
-const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
+const Header = ({ onMenuClick, isMobileMenuOpen }: { onMenuClick: () => void; isMobileMenuOpen: boolean }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { userInfo, loading, songs } = useAppStore();
@@ -48,7 +48,7 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
   const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userInfo?.full_name || 'Usuario')}&background=8b5cf6&color=fff`;
 
   return (
-    <header className={`relative z-40 flex shrink-0 flex-wrap items-center justify-between gap-x-3 px-4 pb-4 pt-3 md:flex-nowrap md:px-7 md:pt-5 ${isDashboard ? 'text-white' : 'text-ink'}`}>
+    <header className={`app-header relative ${isMobileMenuOpen ? 'z-40' : 'z-[70]'} flex shrink-0 flex-wrap items-center justify-between gap-x-3 px-4 pb-4 pt-3 md:flex-nowrap md:px-7 md:pt-5 ${isDashboard ? 'text-white' : 'text-ink'}`}>
       <button onClick={onMenuClick} aria-label="Abrir menú" className="order-0 flex h-9 w-9 shrink-0 items-center justify-center border border-cyan-100/10 bg-[#0d3039] text-cyan-50 lg:hidden">
         <Menu size={19} />
       </button>

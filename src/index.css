@@ -15,6 +15,7 @@
   #root {
     width: 100%;
     height: 100%;
+    min-height: 100%;
   }
 
   body {
@@ -38,10 +39,292 @@ body {
   width: 100%;
   height: 100vh;
   height: 100dvh;
-  min-height: 100svh;
+  min-height: 0;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   overscroll-behavior: none;
+}
+
+/* Keep the iOS status-bar safe area opaque. The mobile drawer stays above it. */
+.app-safe-area-cover {
+  position: fixed;
+  z-index: 55;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: #06171e;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+}
+
+/* iOS can composite the status-bar material above normal page content. */
+.app-header {
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.auth-page {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #06171e;
+  color: #f0fdff;
+}
+
+.auth-layout {
+  display: grid;
+  min-height: 100vh;
+  min-height: 100dvh;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.auth-visual {
+  position: relative;
+  min-height: 230px;
+  height: 30vh;
+  height: 30svh;
+  max-height: 340px;
+  overflow: hidden;
+  background: #0b3039;
+}
+
+.auth-visual > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
+}
+
+.auth-visual-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(3, 17, 22, 0.1) 0%, rgba(3, 17, 22, 0.24) 28%, rgba(3, 17, 22, 0.92) 100%);
+}
+
+.auth-visual-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: max(1rem, env(safe-area-inset-top, 0px)) 1.25rem 1.25rem;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  color: #fff;
+}
+
+.auth-brand-icon {
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  place-items: center;
+  border: 1px solid rgba(207, 250, 254, 0.25);
+  border-radius: 0.9rem;
+  background: rgba(8, 47, 57, 0.7);
+  color: #a5f3fc;
+}
+
+.auth-visual-message h1 {
+  margin-top: 0.5rem;
+  font-size: clamp(1.7rem, 6vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: white;
+}
+
+.auth-visual-message > p:last-child {
+  margin-top: 0.5rem;
+  max-width: 28rem;
+  font-size: 0.875rem;
+  color: rgba(236, 254, 255, 0.75);
+}
+
+.auth-photo-credit {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.65rem;
+  font-size: 0.625rem;
+  color: rgba(236, 254, 255, 0.6);
+}
+
+.auth-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 1rem max(1.25rem, env(safe-area-inset-bottom, 0px));
+  background: radial-gradient(ellipse at 50% 0%, rgba(14, 116, 144, 0.12), transparent 55%), #06171e;
+}
+
+.auth-panel-inner {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 28rem;
+}
+
+.auth-card {
+  border: 1px solid rgba(165, 243, 252, 0.1);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  background: linear-gradient(150deg, rgba(13, 53, 64, 0.78), rgba(8, 42, 51, 0.58));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.auth-input-wrap {
+  display: flex;
+  min-height: 3.6rem;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid rgba(165, 243, 252, 0.15);
+  border-radius: 0.85rem;
+  padding: 0 1rem;
+  background: linear-gradient(180deg, rgba(5, 34, 42, 0.96), rgba(7, 39, 47, 0.96));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.16);
+  color: rgba(165, 243, 252, 0.55);
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.auth-input-wrap:hover:not(:focus-within) {
+  border-color: rgba(165, 243, 252, 0.28);
+}
+
+.auth-input-wrap:focus-within {
+  border-color: rgba(103, 232, 249, 0.72);
+  background: #082a33;
+  box-shadow: 0 0 0 3px rgba(34, 199, 216, 0.14), 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.auth-input-wrap:focus-within > svg {
+  color: #67e8f9;
+}
+
+.auth-input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 0.85rem 0;
+  color: white;
+  font-size: 0.95rem;
+  caret-color: #67e8f9;
+}
+
+.auth-input::placeholder {
+  color: rgba(202, 231, 235, 0.38);
+}
+
+.auth-submit {
+  width: 100%;
+  min-height: 3.4rem;
+  border: 0;
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem;
+  background: linear-gradient(110deg, #67e8f9, #22c7d8);
+  color: #062a33;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-align: center;
+  transition: filter 150ms ease, transform 150ms ease;
+}
+
+.auth-submit:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.auth-notice {
+  border: 1px solid;
+  border-radius: 0.75rem;
+  padding: 0.8rem 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.auth-notice-success {
+  border-color: rgba(52, 211, 153, 0.25);
+  background: rgba(16, 185, 129, 0.1);
+  color: #a7f3d0;
+}
+
+.auth-notice-error {
+  border-color: rgba(251, 113, 133, 0.3);
+  background: rgba(244, 63, 94, 0.1);
+  color: #fecdd3;
+}
+
+.auth-footer {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  color: rgba(202, 231, 235, 0.35);
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .auth-layout {
+    grid-template-columns: minmax(0, 1.05fr) minmax(28rem, 0.95fr);
+  }
+
+  .auth-visual {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+  }
+
+  .auth-visual-content {
+    padding: 2.5rem clamp(2rem, 5vw, 5rem);
+  }
+
+  .auth-visual-message h1 {
+    font-size: clamp(2.6rem, 4.4vw, 4.5rem);
+  }
+
+  .auth-visual-message > p:last-child {
+    font-size: 1rem;
+  }
+
+  .auth-photo-credit {
+    right: 2rem;
+    bottom: 1.25rem;
+  }
+
+  .auth-panel {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 3rem clamp(2.5rem, 6vw, 6rem);
+  }
+
+  .auth-card {
+    padding: 2.25rem;
+    border-radius: 1.5rem;
+  }
 }
 
 .mobile-nav-drawer {
